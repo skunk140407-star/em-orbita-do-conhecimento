@@ -298,7 +298,7 @@ label{ display:block; font-size:.82rem; color:var(--ink-dim); margin-bottom:8px;
 }
 .formula-box small{ display:block; font-family:var(--sans); font-size:.78rem; color:var(--muted); margin-top:10px; }
 
-.formula-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:28px 0; }
+.formula-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:28px 0; }
 .formula-mini{
   background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius-sm);
   padding:20px; text-align:center;
@@ -365,7 +365,7 @@ label{ display:block; font-size:.82rem; color:var(--ink-dim); margin-bottom:8px;
 .calc-card.baseline{ outline:1px dashed var(--teal); }
 .calc-card .rname{ display:flex; align-items:center; gap:8px; font-size:.9rem; margin-bottom:12px; }
 .calc-card .rname .dot{ width:9px; height:9px; border-radius:50%; background:var(--c,var(--gold)); }
-.calc-stats{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+.calc-stats{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .calc-stats .cstat .ck{ font-size:.62rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:3px; }
 .calc-stats .cstat .cv{ font-family:var(--mono); font-size:.98rem; color:var(--ink); }
 .calc-stats .cstat .cd{ font-size:.68rem; color:var(--muted); margin-top:2px; }
@@ -610,7 +610,7 @@ footer{ position:relative; padding:80px 0 48px; overflow:hidden; }
     <div class="section-head">
       <p class="eyebrow">04 · Regra de três</p>
       <h2>Você em outro planeta</h2>
-      <p>Sua <em style="color:var(--ink)">massa</em> (a quantidade de matéria do seu corpo, em kg) é a mesma em qualquer lugar do universo. O que muda é a força da gravidade puxando você — e é isso que altera seu <em style="color:var(--ink)">peso</em>, a altura do seu pulo e até quantos "anos" você teria em cada planeta.</p>
+      <p>Sua <em style="color:var(--ink)">massa</em> (a quantidade de matéria do seu corpo, em kg) é a mesma em qualquer lugar do universo. O que muda é a força da gravidade puxando você — e é isso que altera seu <em style="color:var(--ink)">peso</em> e até quantos "anos" você teria em cada planeta.</p>
     </div>
     <div class="formula-grid">
       <div class="formula-mini">
@@ -619,14 +619,9 @@ footer{ position:relative; padding:80px 0 48px; overflow:hidden; }
         <p class="fx-note">massa (kg) × gravidade do planeta (m/s²)</p>
       </div>
       <div class="formula-mini">
-        <h4>Altura do pulo</h4>
-        <p class="fx">h = h<sub>Terra</sub> × (9,8 ÷ g)</p>
-        <p class="fx-note">mesmo impulso, gravidade menor = pulo mais alto</p>
-      </div>
-      <div class="formula-mini">
         <h4>Idade no planeta</h4>
-        <p class="fx">idade ÷ duração do ano</p>
-        <p class="fx-note">quantas voltas o planeta já deu desde que você nasceu</p>
+        <p class="fx">idade × 365 ÷ duração do ano (dias)</p>
+        <p class="fx-note">quantas voltas o planeta já deu ao redor do Sol desde que você nasceu</p>
       </div>
     </div>
     <div class="tool-card">
@@ -634,10 +629,6 @@ footer{ position:relative; padding:80px 0 48px; overflow:hidden; }
         <div class="field-wrap">
           <label for="massInput">Sua massa (kg)</label>
           <input class="field" type="number" id="massInput" value="40" min="1" max="200" step="0.5">
-        </div>
-        <div class="field-wrap">
-          <label for="jumpInput">Altura do seu pulo na Terra (cm)</label>
-          <input class="field" type="number" id="jumpInput" value="30" min="1" max="100" step="1">
         </div>
         <div class="field-wrap">
           <label for="ageInput">Sua idade (anos)</label>
@@ -753,55 +744,55 @@ const BODIES = [
     known:"O planeta mais próximo do Sol e o menor do Sistema Solar", gravity:3.7,
     rotation:"≈59 dias terrestres", translation:"≈88 dias terrestres",
     tempAvg:167, tempMin:-180, tempMax:430, tempLabel:"Média ≈167 °C (−180 °C à noite a 430 °C de dia)",
-    diameterKm:4879, distanceAU:0.387, periodYears:0.241,
+    diameterKm:4879, distanceAU:0.387, periodYears:0.241, periodDays:88,
     fact:"Um dia em Mercúrio (de um nascer do sol ao próximo) dura cerca de 176 dias terrestres — quase 2 dos seus 'anos'." },
   { id:"venus", name:"Vênus", symbol:"♀", color:"#e8c27e", role:"planeta", position:2,
     known:"Estrela-D'Alva ou Estrela da Manhã — embora seja um planeta", gravity:8.87,
     rotation:"≈243 dias terrestres (e gira ao contrário dos demais)", translation:"≈225 dias terrestres",
     tempAvg:465, tempLabel:"≈465 °C — o planeta mais quente do Sistema Solar",
-    diameterKm:12104, distanceAU:0.723, periodYears:0.615,
+    diameterKm:12104, distanceAU:0.723, periodYears:0.615, periodDays:225,
     fact:"Em Vênus, um dia (243 dias terrestres) é mais longo que o seu próprio ano (225 dias terrestres)." },
   { id:"terra", name:"Terra", symbol:"🌎", color:"#4f9fd8", role:"planeta", position:3,
     known:"Planeta Azul — o planeta da vida", gravity:9.8,
     rotation:"≈24 horas", translation:"≈365 dias e 6 horas",
     tempAvg:15, tempLabel:"Média global ≈15 °C, com grande variação regional",
-    diameterKm:12742, distanceAU:1.0, periodYears:1.0,
+    diameterKm:12742, distanceAU:1.0, periodYears:1.0, periodDays:365,
     fact:"É o nosso planeta de referência: toda comparação de gravidade, tamanho e temperatura deste site usa a Terra como base 1x." },
   { id:"marte", name:"Marte", symbol:"♂", color:"#c1552e", role:"planeta", position:4,
     known:"O Planeta Vermelho", gravity:3.71,
     rotation:"≈24 horas e 37 minutos", translation:"≈687 dias terrestres",
     tempAvg:-63, tempLabel:"Média ≈−63 °C, com grande variação",
-    diameterKm:6779, distanceAU:1.524, periodYears:1.881,
+    diameterKm:6779, distanceAU:1.524, periodYears:1.881, periodDays:687,
     fact:"Marte tem o maior vulcão do Sistema Solar, o Monte Olimpo — quase 3 vezes mais alto que o Everest." },
   { id:"jupiter", name:"Júpiter", symbol:"♃", color:"#d8a05c", role:"planeta", position:5,
     known:"Gigante gasoso — o maior planeta do Sistema Solar", gravity:24.79,
     rotation:"≈10 horas", translation:"≈11,86 anos terrestres",
     tempAvg:-110, tempLabel:"≈−110 °C no topo das nuvens",
-    diameterKm:139820, distanceAU:5.203, periodYears:11.86,
+    diameterKm:139820, distanceAU:5.203, periodYears:11.86, periodDays:4333,
     fact:"Caberiam mais de 1.300 Terras dentro do volume de Júpiter — mas sua gravidade é só 2,5 vezes a nossa." },
   { id:"saturno", name:"Saturno", symbol:"♄", color:"#e3c16f", role:"planeta", position:6,
     known:"O planeta dos anéis", gravity:10.44,
     rotation:"≈10 horas e 30 minutos", translation:"≈29,5 anos terrestres",
     tempAvg:-140, tempLabel:"≈−140 °C no topo das nuvens",
-    diameterKm:116460, distanceAU:9.537, periodYears:29.46,
+    diameterKm:116460, distanceAU:9.537, periodYears:29.46, periodDays:10759,
     fact:"Saturno é tão pouco denso que, em teoria, flutuaria em uma banheira de água grande o suficiente." },
   { id:"urano", name:"Urano", symbol:"♅", color:"#7fd6d6", role:"planeta", position:7,
     known:"Gigante de gelo — gira praticamente 'deitado'", gravity:8.69,
     rotation:"≈17 horas", translation:"≈84 anos terrestres",
     tempAvg:-195, tempLabel:"≈−195 °C na atmosfera superior",
-    diameterKm:50724, distanceAU:19.19, periodYears:84.01,
+    diameterKm:50724, distanceAU:19.19, periodYears:84.01, periodDays:30687,
     fact:"O eixo de rotação de Urano está inclinado cerca de 98° — ele gira quase deitado, 'rolando' em sua órbita." },
   { id:"netuno", name:"Netuno", symbol:"♆", color:"#3b5ba5", role:"planeta", position:8,
     known:"Gigante de gelo — ventos extremamente fortes", gravity:11.15,
     rotation:"≈16 horas", translation:"≈165 anos terrestres",
     tempAvg:-200, tempLabel:"≈−200 °C na atmosfera superior",
-    diameterKm:49244, distanceAU:30.07, periodYears:164.8,
+    diameterKm:49244, distanceAU:30.07, periodYears:164.8, periodDays:60190,
     fact:"Netuno tem os ventos mais rápidos do Sistema Solar, com rajadas de até 2.100 km/h." },
   { id:"lua", name:"Lua", symbol:"🌙", color:"#b7b4ac", role:"satélite", position:null,
     known:"Satélite natural da Terra — não é um planeta", gravity:1.62,
     rotation:"≈27,3 dias", translation:"≈27,3 dias ao redor da Terra",
     tempAvg:-23, tempMin:-173, tempMax:127, tempLabel:"De −173 °C (noite lunar) a 127 °C (dia lunar)",
-    diameterKm:3474, distanceAU:null, periodYears:0.0748,
+    diameterKm:3474, distanceAU:null, periodYears:0.0748, periodDays:27.3,
     fact:"A Lua sempre mostra a mesma face para a Terra porque seu período de rotação e de translação são exatamente iguais." },
 ];
 
@@ -1715,19 +1706,17 @@ function baseBarOptions(yLabel){
 })();
 
 /* ============================================================
-   CALCULADORA: PESO (N), PULO E IDADE EM CADA CORPO
+   CALCULADORA: PESO (N) E IDADE EM CADA CORPO
    ============================================================ */
 function renderCalc(){
   const mass = parseFloat(document.getElementById("massInput").value) || 0;
-  const jumpEarth = parseFloat(document.getElementById("jumpInput").value) || 0;
   const age = parseFloat(document.getElementById("ageInput").value) || 0;
   const host = document.getElementById("calcResults");
   host.innerHTML = "";
   BODIES.forEach(b=>{
     const weightN = mass * b.gravity;
     const ratio = b.gravity / EARTH_G;
-    const jumpCm = jumpEarth * (EARTH_G / b.gravity);
-    const ageOnBody = b.periodYears ? age / b.periodYears : null;
+    const ageOnBody = b.periodDays ? (age * 365) / b.periodDays : null;
 
     const card = el("div","calc-card" + (b.id==="terra" ? " baseline":""));
     card.style.setProperty("--c", b.color);
@@ -1736,14 +1725,13 @@ function renderCalc(){
       <div class="rname"><span class="dot"></span>${b.name}</div>
       <div class="calc-stats">
         <div class="cstat"><div class="ck">Peso</div><div class="cv">${fmt(weightN,0)} N</div><div class="cd">${weightNote}</div></div>
-        <div class="cstat"><div class="ck">Pulo</div><div class="cv">${formatLength(jumpCm)}</div></div>
         <div class="cstat"><div class="ck">Idade</div><div class="cv">${ageOnBody!=null ? fmt(ageOnBody,ageOnBody<10?2:1)+" anos" : "—"}</div></div>
       </div>`;
     host.appendChild(card);
   });
 }
 document.getElementById("calcRun").addEventListener("click", renderCalc);
-["massInput","jumpInput","ageInput"].forEach(id=>{
+["massInput","ageInput"].forEach(id=>{
   document.getElementById(id).addEventListener("keydown", e=>{ if(e.key==="Enter") renderCalc(); });
 });
 renderCalc();
