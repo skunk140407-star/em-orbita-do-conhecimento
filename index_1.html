@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Em órbita do conhecimento — A matemática que explica o Sistema Solar</title>
+<meta name="description" content="Projeto de feira de ciências: a matemática que explica o Sistema Solar. Escola Professora Francisca Borba, Balneário Piçarras/SC.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --bg:#0a0a16;
+  --bg-2:#0e0e1f;
+  --panel:#15142c;
+  --panel-2:#1b1a3a;
+  --panel-border: rgba(244,241,234,.09);
+  --ink:#f4f1ea;
+  --ink-dim:#b7b3d1;
+  --muted:#8481a3;
+  --gold:#e2e0d8;
+  --gold-soft:#f8f6f1;
+  --gold-deep:#84827a;
+  --teal:#b6b3a9;
+  --violet:#8c8a82;
+  --red-soft:#a8a59b;
+  --status-good:#7fd99f;
+  --status-bad:#e08585;
+  --max: 1180px;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --serif: "Fraunces", ui-serif, Georgia, serif;
+  --sans: "Space Grotesk", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+
+body{
+  margin:0;
+  background:
+    radial-gradient(ellipse 900px 560px at 82% -6%, rgba(230,228,220,.06), transparent 60%),
+    radial-gradient(ellipse 700px 700px at -10% 30%, rgba(180,178,170,.06), transparent 55%),
+    var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+img,canvas{ max-width:100%; display:block; }
+a{ color:inherit; }
+.visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+h1,h2,h3,h4{ font-family:var(--serif); font-weight:600; margin:0 0 .4em; letter-spacing:-.01em; color:var(--ink); }
+p{ margin:0 0 1em; color:var(--ink-dim); }
+.mono{ font-family:var(--mono); }
+
+::selection{ background:var(--gold); color:var(--bg); }
+
+:focus-visible{ outline:2px solid var(--teal); outline-offset:3px; border-radius:4px; }
+
+.wrap{ max-width:var(--max); margin:0 auto; padding:0 24px; }
+
+section{ position:relative; padding:96px 0; }
+section + section{ border-top:1px solid var(--panel-border); }
+
+.eyebrow{
+  font-family:var(--mono); text-transform:uppercase; letter-spacing:.14em;
+  font-size:.72rem; color:var(--teal); margin:0 0 14px; display:flex; align-items:center; gap:10px;
+}
+.eyebrow::before{ content:""; width:22px; height:1px; background:var(--teal); display:inline-block; }
+
+.section-head{ max-width:760px; margin-bottom:48px; }
+.section-head h2{ font-size:clamp(1.7rem, 3.4vw, 2.5rem); }
+.section-head p{ font-size:1.02rem; }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:50;
+  background:rgba(10,10,22,.72);
+  backdrop-filter:blur(14px) saturate(140%);
+  border-bottom:1px solid var(--panel-border);
+}
+.nav-inner{
+  max-width:var(--max); margin:0 auto; padding:14px 24px;
+  display:flex; align-items:center; justify-content:space-between; gap:24px;
+}
+.nav-brand{
+  font-family:var(--serif); font-size:1rem; font-weight:600; white-space:nowrap;
+  display:flex; align-items:center; gap:8px;
+}
+.nav-brand .dot{ width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px 2px rgba(226,224,216,.5); }
+.nav-links{ display:flex; gap:4px; list-style:none; margin:0; padding:0; overflow-x:auto; scrollbar-width:none; }
+.nav-links::-webkit-scrollbar{ display:none; }
+.nav-links a{
+  display:inline-block; padding:8px 12px; border-radius:100px; text-decoration:none;
+  font-size:.82rem; color:var(--muted); white-space:nowrap; transition:color .15s, background .15s;
+}
+.nav-links a:hover{ color:var(--ink); background:rgba(255,255,255,.05); }
+.nav-links a.active{ color:var(--bg); background:var(--gold-soft); }
+
+/* ============================================================
+   HERO — black hole background (WebGL raymarched shader)
+   ============================================================ */
+.hero{
+  min-height:100svh;
+  display:flex; align-items:center;
+  position:relative; overflow:hidden;
+  border-top:none;
+  background:
+    radial-gradient(ellipse 800px 800px at 78% 45%, rgba(80,40,10,.35), transparent 60%),
+    #000;
+}
+@media (max-width: 767px){
+  .hero{ align-items:flex-start; padding-top:118px; }
+}
+.hero-canvas-host{ position:absolute; inset:0; z-index:0; background:#000; }
+.hero-canvas-host canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.hero-grid{
+  position:relative; z-index:2;
+  max-width:var(--max); margin:0 auto; padding:170px 24px 120px; width:100%;
+}
+@media (max-width: 767px){ .hero-grid{ padding:0 24px 60px; } }
+.hero-copy{ max-width:620px; }
+.hero-copy h1{
+  font-size:clamp(2.6rem, 6vw, 4.6rem); line-height:1.02; margin-bottom:.28em;
+}
+.hero-copy h1 em{ font-style:italic; color:var(--gold-soft); font-weight:500; }
+.hero-sub{
+  font-family:var(--sans); font-weight:500; font-size:clamp(1.05rem,2vw,1.35rem);
+  color:var(--teal); margin-bottom:26px; letter-spacing:-.005em;
+}
+.hero-authors{ font-size:.92rem; color:var(--ink-dim); margin-bottom:22px; }
+.hero-authors strong{ color:var(--ink); font-weight:500; }
+.hero-tags{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:38px; }
+.hero-tags span{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.02em; color:var(--ink-dim);
+  border:1px solid var(--panel-border); background:rgba(255,255,255,.03);
+  padding:7px 12px; border-radius:100px;
+}
+.scroll-cue{
+  display:inline-flex; align-items:center; gap:10px; text-decoration:none;
+  color:var(--ink); font-size:.88rem; font-weight:500;
+  border-bottom:1px solid var(--gold);
+  padding-bottom:4px; width:max-content;
+}
+.scroll-cue .arrow{ display:inline-block; animation:bob 1.8s ease-in-out infinite; }
+@keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(4px);} }
+@media (prefers-reduced-motion: reduce){ .scroll-cue .arrow{ animation:none; } }
+
+/* ============================================================
+   BUTTONS / INPUTS
+   ============================================================ */
+.btn{
+  font-family:var(--sans); font-weight:600; font-size:.9rem; cursor:pointer;
+  border:none; border-radius:100px; padding:13px 26px;
+  background:var(--gold); color:var(--bg);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.btn:hover{ transform:translateY(-1px); box-shadow:0 8px 24px -8px rgba(226,224,216,.45); }
+.btn.ghost{ background:transparent; color:var(--ink); border:1px solid var(--panel-border); }
+.field{
+  font-family:var(--mono); font-size:1rem; color:var(--ink);
+  background:var(--panel-2); border:1px solid var(--panel-border); border-radius:10px;
+  padding:12px 14px; width:100%;
+}
+.field:focus{ border-color:var(--teal); }
+label{ display:block; font-size:.82rem; color:var(--ink-dim); margin-bottom:8px; }
+
+/* ============================================================
+   INTRO
+   ============================================================ */
+.intro-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:28px; margin-top:40px; }
+.intro-card{
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
+  padding:26px 24px;
+}
+.intro-card .num{ font-family:var(--mono); color:var(--teal); font-size:.78rem; letter-spacing:.06em; }
+.intro-card h3{ font-size:1.12rem; margin:10px 0 8px; }
+.intro-card p{ font-size:.92rem; margin:0; }
+
+/* ============================================================
+   PLANET CARDS
+   ============================================================ */
+.body-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(270px,1fr)); gap:20px;
+}
+.body-card{
+  --c: #fff;
+  background:linear-gradient(180deg, rgba(255,255,255,.03), transparent 40%), var(--panel);
+  border:1px solid var(--panel-border);
+  border-top:3px solid var(--c);
+  border-radius:var(--radius); padding:22px 22px 18px;
+  position:relative; overflow:hidden;
+}
+.body-card::after{
+  content:""; position:absolute; top:-40px; right:-40px; width:120px; height:120px;
+  border-radius:50%; background:var(--c); opacity:.14; filter:blur(30px);
+}
+.body-card-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:14px; }
+.body-name{ display:flex; align-items:center; gap:10px; }
+.body-swatch{ width:34px; height:34px; border-radius:50%; background:var(--c); flex:none; box-shadow:0 0 18px -2px var(--c); }
+.body-name h3{ margin:0; font-size:1.22rem; }
+.body-position{
+  font-family:var(--mono); font-size:.68rem; color:var(--bg); background:var(--c);
+  padding:4px 9px; border-radius:100px; white-space:nowrap; font-weight:600;
+}
+.body-known{ font-size:.86rem; font-style:italic; color:var(--ink-dim); margin-bottom:16px; }
+.body-stats{ display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; margin-bottom:14px; }
+.stat{ }
+.stat .k{ font-size:.66rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:3px; }
+.stat .v{ font-family:var(--mono); font-size:.86rem; color:var(--ink); }
+.body-card details{ border-top:1px dashed var(--panel-border); padding-top:12px; }
+.body-card summary{
+  cursor:pointer; font-size:.82rem; color:var(--teal); list-style:none; display:flex; align-items:center; gap:6px;
+}
+.body-card summary::-webkit-details-marker{ display:none; }
+.body-card summary::before{ content:"✦"; font-size:.7rem; }
+.body-card details[open] summary{ margin-bottom:8px; }
+.body-card .fact{ font-size:.86rem; margin:0; color:var(--ink-dim); }
+
+.card-embed-frame{
+  position:relative; width:calc(100% + 44px); margin:-22px -22px 14px; aspect-ratio:4/3;
+  overflow:hidden; border-radius:calc(var(--radius) - 3px) calc(var(--radius) - 3px) 0 0;
+  background:#000; border-bottom:1px solid var(--panel-border); z-index:1;
+}
+.card-embed-frame iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+.body-card .embed-attrib{ margin:-8px 0 16px; font-size:.64rem; position:relative; z-index:1; }
+
+/* ============================================================
+   MODELO 3D
+   ============================================================ */
+.embed-card{
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
+  padding:14px; overflow:hidden;
+}
+.embed-frame{
+  position:relative; width:100%; aspect-ratio:16/9; border-radius:var(--radius-sm); overflow:hidden;
+  background:#000;
+}
+.embed-frame iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+.embed-attrib{
+  font-size:.72rem; font-weight:400; margin:12px 4px 4px; color:var(--muted);
+}
+.embed-attrib a{ font-weight:600; color:var(--teal); text-decoration:none; }
+.embed-attrib a:hover{ text-decoration:underline; }
+.embed-hint{ display:flex; align-items:center; gap:8px; font-size:.82rem; color:var(--ink-dim); margin-top:16px; }
+.embed-hint .k{
+  font-family:var(--mono); font-size:.7rem; color:var(--bg); background:var(--teal);
+  padding:2px 8px; border-radius:5px; font-weight:600;
+}
+
+/* ============================================================
+   CHARTS / COMPARATIVOS
+   ============================================================ */
+.chart-card{
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
+  padding:28px; margin-bottom:26px;
+}
+.chart-card h3{ font-size:1.15rem; margin-bottom:4px; }
+.chart-card .chart-note{ font-size:.85rem; color:var(--muted); margin-bottom:18px; }
+.chart-holder{ position:relative; height:340px; }
+.chart-card table-toggle,
+.table-toggle{ margin-top:16px; }
+.table-toggle summary{ cursor:pointer; color:var(--teal); font-size:.82rem; }
+.data-table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:.84rem; }
+.data-table th,.data-table td{ text-align:left; padding:9px 10px; border-bottom:1px solid var(--panel-border); }
+.data-table th{ color:var(--muted); font-weight:500; font-family:var(--mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; }
+.data-table td{ font-family:var(--mono); color:var(--ink-dim); }
+.data-table td.name{ font-family:var(--sans); color:var(--ink); }
+
+.size-compare{
+  display:flex; align-items:flex-end; gap:22px; flex-wrap:wrap; padding:20px 6px 6px;
+  border-top:1px solid var(--panel-border); margin-top:8px;
+}
+.size-item{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+.size-circle{ border-radius:50%; background:var(--c); box-shadow:0 0 24px -6px var(--c); }
+.size-item .lbl{ font-size:.72rem; color:var(--ink-dim); text-align:center; }
+.size-item .lbl b{ display:block; color:var(--ink); font-family:var(--mono); font-size:.68rem; margin-top:2px; }
+
+/* ============================================================
+   FÓRMULAS (calculadora / escala)
+   ============================================================ */
+.formula-box{
+  font-family:var(--serif); font-size:clamp(1.5rem,3vw,2.1rem); text-align:center;
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
+  padding:30px; margin:28px 0; color:var(--gold-soft);
+}
+.formula-box small{ display:block; font-family:var(--sans); font-size:.78rem; color:var(--muted); margin-top:10px; }
+
+.formula-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:28px 0; }
+.formula-mini{
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius-sm);
+  padding:20px; text-align:center;
+}
+.formula-mini h4{ font-family:var(--mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:500; margin:0 0 12px; }
+.formula-mini .fx{ font-family:var(--serif); font-size:1.15rem; color:var(--gold-soft); margin:0 0 8px; }
+.formula-mini .fx-note{ font-size:.76rem; color:var(--muted); margin:0; }
+@media (max-width:760px){ .formula-grid{ grid-template-columns:1fr; } }
+
+/* ============================================================
+   QUIZ
+   ============================================================ */
+.quiz-card, .quiz-result{
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
+  padding:36px; max-width:680px;
+}
+.quiz-progress{ height:4px; border-radius:100px; background:var(--panel-2); overflow:hidden; margin-bottom:20px; }
+.quiz-progress-bar{ height:100%; width:0%; background:var(--gold); border-radius:100px; transition:width .3s ease; }
+.quiz-counter{ font-family:var(--mono); font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+.quiz-question{ font-size:1.25rem; margin-bottom:22px; }
+.quiz-options{ display:flex; flex-direction:column; gap:10px; margin-bottom:18px; }
+.quiz-option{
+  text-align:left; font-family:var(--sans); font-size:.94rem; color:var(--ink);
+  background:var(--panel-2); border:1px solid var(--panel-border); border-radius:12px;
+  padding:14px 18px; cursor:pointer; transition:border-color .15s, background .15s;
+}
+.quiz-option:hover:not(:disabled){ border-color:var(--ink-dim); }
+.quiz-option:disabled{ cursor:default; }
+.quiz-option.is-correct{ border-color:var(--status-good); background:rgba(127,217,159,.08); }
+.quiz-option.is-wrong{ border-color:var(--status-bad); background:rgba(224,133,133,.08); }
+.quiz-feedback{ font-size:.9rem; min-height:1.4em; margin-bottom:18px; }
+.quiz-feedback.is-correct{ color:var(--status-good); }
+.quiz-feedback.is-wrong{ color:var(--status-bad); }
+.quiz-actions{ display:flex; justify-content:flex-end; }
+.quiz-result{ text-align:center; }
+.quiz-result-score{
+  font-family:var(--serif); font-size:3rem; color:var(--gold-soft); margin-bottom:6px;
+}
+.quiz-result h3{ font-size:1.4rem; }
+.quiz-result p{ max-width:440px; margin-left:auto; margin-right:auto; }
+.quiz-result .btn{ margin-top:10px; }
+
+/* ============================================================
+   CALCULATOR / SCALE
+   ============================================================ */
+.tool-card{
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
+  padding:34px;
+}
+.tool-form{ display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap; margin-bottom:30px; }
+.tool-form .field-wrap{ flex:1 1 220px; }
+.preset-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.preset-btn{
+  font-family:var(--mono); font-size:.72rem; padding:7px 12px; border-radius:100px;
+  border:1px solid var(--panel-border); background:transparent; color:var(--ink-dim); cursor:pointer;
+}
+.preset-btn:hover, .preset-btn.active{ border-color:var(--teal); color:var(--teal); }
+
+.calc-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
+.calc-card{
+  background:var(--panel-2); border:1px solid var(--panel-border); border-radius:14px; padding:16px 18px;
+  border-left:3px solid var(--c,var(--gold));
+}
+.calc-card.baseline{ outline:1px dashed var(--teal); }
+.calc-card .rname{ display:flex; align-items:center; gap:8px; font-size:.9rem; margin-bottom:12px; }
+.calc-card .rname .dot{ width:9px; height:9px; border-radius:50%; background:var(--c,var(--gold)); }
+.calc-stats{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+.calc-stats .cstat .ck{ font-size:.62rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:3px; }
+.calc-stats .cstat .cv{ font-family:var(--mono); font-size:.98rem; color:var(--ink); }
+.calc-stats .cstat .cd{ font-size:.68rem; color:var(--muted); margin-top:2px; }
+@media (max-width:420px){ .calc-stats{ grid-template-columns:1fr; } }
+
+/* ============================================================
+   CURIOSIDADES
+   ============================================================ */
+.fact-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:18px; }
+.fact-card{
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:16px; padding:20px;
+}
+.fact-card .icon{ font-size:1.5rem; margin-bottom:10px; display:block; }
+.fact-card p{ font-size:.88rem; margin:0; color:var(--ink-dim); }
+.fact-card strong{ color:var(--ink); }
+
+/* ============================================================
+   GLOSSARY / SOURCES
+   ============================================================ */
+.glossary{ display:grid; grid-template-columns:repeat(2,1fr); gap:0 40px; }
+.glossary dt{ font-family:var(--serif); font-size:1.05rem; color:var(--gold-soft); margin-top:20px; }
+.glossary dd{ margin:6px 0 0; font-size:.9rem; color:var(--ink-dim); }
+
+footer{ position:relative; padding:80px 0 48px; overflow:hidden; }
+.footer-inner{ position:relative; }
+.footer-glow{
+  position:absolute; top:0; left:50%; transform:translate(-50%,-50%);
+  width:33%; height:1px; border-radius:100px;
+  background:var(--ink-dim); opacity:.35; filter:blur(1px);
+}
+.footer-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:40px; padding-top:8px; }
+[data-animate]{ opacity:0; transform:translateY(10px); filter:blur(3px); transition:opacity .7s ease, transform .7s ease, filter .7s ease; transition-delay:var(--d,0s); }
+[data-animate].in-view{ opacity:1; transform:translateY(0); filter:blur(0); }
+@media (prefers-reduced-motion: reduce){ [data-animate]{ opacity:1; transform:none; filter:none; transition:none; } }
+.footer-brand .nav-brand{ margin-bottom:16px; }
+.footer-brand .school{ font-size:.8rem; color:var(--muted); line-height:1.7; max-width:320px; }
+.footer-col h3{
+  font-family:var(--mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.08em;
+  color:var(--muted); font-weight:500; margin-bottom:16px;
+}
+.footer-col ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:11px; }
+.footer-col a{ font-size:.86rem; color:var(--ink-dim); text-decoration:none; transition:color .15s; }
+.footer-col a:hover{ color:var(--ink); }
+.footer-bottom{
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  margin-top:56px; padding-top:24px; border-top:1px solid var(--panel-border);
+}
+.footer-bottom p{ font-size:.78rem; color:var(--muted); margin:0; }
+@media (max-width: 880px){
+  .footer-grid{ grid-template-columns:1fr 1fr; row-gap:36px; }
+  .footer-brand{ grid-column:1 / -1; }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 880px){
+  .hero-grid{ grid-template-columns:1fr; }
+  .sun-stage{ max-width:340px; margin:40px auto 0; }
+  .intro-grid{ grid-template-columns:1fr; }
+  .glossary{ grid-template-columns:1fr; }
+  section{ padding:64px 0; }
+  .nav-brand span.full{ display:none; }
+}
+@media (max-width: 560px){
+  .body-stats{ grid-template-columns:1fr 1fr; }
+  .tool-form{ flex-direction:column; align-items:stretch; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand"><span class="dot"></span><span class="full">Em órbita do conhecimento</span></div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#sistema">Sistema Solar</a></li>
+      <li><a href="#modelo3d">Modelo 3D</a></li>
+      <li><a href="#comparativos">Comparativos</a></li>
+      <li><a href="#quiz">Quiz</a></li>
+      <li><a href="#calculadora">Seu peso</a></li>
+      <li><a href="#escala">Escala</a></li>
+      <li><a href="#curiosidades">Curiosidades</a></li>
+      <li><a href="#glossario">Glossário</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ======================= HERO ======================= -->
+<header class="hero" id="inicio">
+  <div class="hero-canvas-host" id="blackholeHost" role="img" aria-label="Simulação animada de um buraco negro, com o disco de gás e a luz curvada ao redor dele"></div>
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Feira de Ciências · Matemática Aplicada</p>
+      <h1>Em órbita<br><em>do conhecimento</em></h1>
+      <p class="hero-sub">A matemática que explica o Sistema Solar</p>
+      <p class="hero-authors">
+        <strong>Lívia Rodrigues Fernandes</strong> · <strong>Miguel Corrêa Rodrigues</strong> ·
+        <strong>Anna Carolina Corrêa</strong> · <strong>Karina da Silva Costa Assink</strong>
+      </p>
+      <div class="hero-tags">
+        <span>Ensino Fundamental — Anos Finais</span>
+        <span>Matemática Aplicada e Inter-relação com outras disciplinas</span>
+        <span>E.E.B. Professora Francisca Borba — Balneário Piçarras/SC</span>
+      </div>
+      <a class="scroll-cue" href="#sistema">Explorar o Sistema Solar <span class="arrow">↓</span></a>
+    </div>
+  </div>
+</header>
+
+<!-- ======================= INTRODUÇÃO ======================= -->
+<section id="intro">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Introdução</p>
+      <h2>Por que matemática para explicar o espaço?</h2>
+      <p>O Sistema Solar parece assunto de Ciências — mas por trás de cada órbita, cada dia e cada ano de cada planeta existe uma conta. Gravidade é uma razão. Escala é uma proporção. A relação entre a distância de um planeta ao Sol e o tempo que ele leva para orbitá-lo é uma lei matemática descoberta há mais de 400 anos. Este site organiza os dados que o grupo pesquisou sobre o Sol, os oito planetas e a Lua, e usa proporção, regra de três e potenciação para transformar esses números em respostas concretas: quanto você pesaria em Júpiter? Por que Vênus é mais quente que Mercúrio, mesmo estando mais longe do Sol? E se o Sistema Solar coubesse em uma sala de aula, qual seria o tamanho de cada planeta?</p>
+    </div>
+    <div class="intro-grid">
+      <div class="intro-card">
+        <span class="num">Proporção</span>
+        <h3>Escala e tamanho</h3>
+        <p>Reduzimos milhões de quilômetros a centímetros, mantendo a razão entre os tamanhos e as distâncias reais.</p>
+      </div>
+      <div class="intro-card">
+        <span class="num">Regra de três</span>
+        <h3>Peso em outros mundos</h3>
+        <p>A gravidade de cada planeta multiplica seu peso na Terra por uma razão fixa — a mesma lógica de qualquer problema de proporção direta.</p>
+      </div>
+      <div class="intro-card">
+        <span class="num">Revisão</span>
+        <h3>Quiz do Sistema Solar</h3>
+        <p>No final, um quiz reúne os dados, os planetas e as contas deste site para ver o que ficou — e mostra onde vale a pena dar mais uma olhada.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= SISTEMA SOLAR ======================= -->
+<section id="sistema">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">01 · Dados pesquisados</p>
+      <h2>O Sistema Solar em números</h2>
+      <p>Da estrela central até a Lua, na ordem real de distância ao Sol. Toque em "curiosidade" para ver um fato extra de cada corpo.</p>
+    </div>
+    <div class="body-grid" id="bodyGrid"></div>
+  </div>
+</section>
+
+<!-- ======================= MODELO 3D ======================= -->
+<section id="modelo3d">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Explore em 3D</p>
+      <h2>O Sistema Solar em três dimensões</h2>
+      <p>Arraste para girar, use o scroll para dar zoom e veja as órbitas de cima — o mesmo Sistema Solar que a tabela e os gráficos descrevem, agora em um modelo interativo.</p>
+    </div>
+    <div class="embed-card">
+      <div class="embed-frame">
+        <iframe title="Solar System animation" loading="lazy"
+          allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen
+          xr-spatial-tracking="true" execution-while-out-of-viewport execution-while-not-rendered web-share
+          src="https://sketchfab.com/models/b7c69a6b655b47c99f871d5ec5aee854/embed">
+        </iframe>
+      </div>
+    </div>
+    <p class="embed-hint"><span class="k">dica</span> clique e arraste dentro do modelo para orbitar a câmera ao redor do Sol.</p>
+  </div>
+</section>
+
+<!-- ======================= COMPARATIVOS ======================= -->
+<section id="comparativos">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">02 · Gráficos</p>
+      <h2>Comparativos matemáticos</h2>
+      <p>Os mesmos dados, lado a lado. Colocar os números em um gráfico é o que transforma uma lista em uma comparação — e revela padrões que uma tabela sozinha esconde.</p>
+    </div>
+
+    <div class="chart-card">
+      <h3>Gravidade na superfície (m/s²)</h3>
+      <p class="chart-note">A Terra tem 9,8 m/s². Repare quantas vezes a gravidade de Júpiter é maior — e o quanto a da Lua é menor.</p>
+      <div class="chart-holder"><canvas id="chartGravity" role="img" aria-label="Gráfico de barras comparando a gravidade de cada corpo do Sistema Solar"></canvas></div>
+      <details class="table-toggle"><summary>Ver dados em tabela</summary>
+        <table class="data-table" id="tableGravity"></table>
+      </details>
+    </div>
+
+    <div class="chart-card">
+      <h3>Temperatura média (°C)</h3>
+      <p class="chart-note">Vênus é o planeta mais quente do Sistema Solar — mais até que Mercúrio, que está bem mais perto do Sol. A atmosfera é a diferença.</p>
+      <div class="chart-holder"><canvas id="chartTemp" role="img" aria-label="Gráfico de barras comparando a temperatura média dos oito planetas"></canvas></div>
+      <details class="table-toggle"><summary>Ver dados em tabela</summary>
+        <table class="data-table" id="tableTemp"></table>
+      </details>
+    </div>
+
+    <div class="chart-card">
+      <h3>Tamanho comparado (diâmetro)</h3>
+      <p class="chart-note">Cada círculo é proporcional ao diâmetro real do corpo (o Sol está fora de escala aqui — veja o quanto ele é maior na seção "Escala").</p>
+      <div class="size-compare" id="sizeCompare"></div>
+      <details class="table-toggle"><summary>Ver dados em tabela</summary>
+        <table class="data-table" id="tableSize"></table>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= QUIZ ======================= -->
+<section id="quiz">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">03 · Teste seus conhecimentos</p>
+      <h2>Quiz do Sistema Solar</h2>
+      <p>Depois de explorar os planetas, os gráficos e os modelos 3D, vamos ver o que ficou? São 8 perguntas — cada uma com uma única resposta certa.</p>
+    </div>
+
+    <div class="quiz-card" id="quizCard">
+      <div class="quiz-progress"><div class="quiz-progress-bar" id="quizProgressBar"></div></div>
+      <p class="quiz-counter" id="quizCounter"></p>
+      <h3 class="quiz-question" id="quizQuestion"></h3>
+      <div class="quiz-options" id="quizOptions"></div>
+      <p class="quiz-feedback" id="quizFeedback"></p>
+      <div class="quiz-actions">
+        <button class="btn ghost" id="quizNext" disabled>Próxima pergunta</button>
+      </div>
+    </div>
+
+    <div class="quiz-result" id="quizResult" hidden>
+      <p class="quiz-result-score" id="quizResultScore"></p>
+      <h3 id="quizResultTitle"></h3>
+      <p id="quizResultText"></p>
+      <button class="btn" id="quizRetry">Tentar de novo</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= CALCULADORA ======================= -->
+<section id="calculadora">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">04 · Regra de três</p>
+      <h2>Você em outro planeta</h2>
+      <p>Sua <em style="color:var(--ink)">massa</em> (a quantidade de matéria do seu corpo, em kg) é a mesma em qualquer lugar do universo. O que muda é a força da gravidade puxando você — e é isso que altera seu <em style="color:var(--ink)">peso</em>, a altura do seu pulo e até quantos "anos" você teria em cada planeta.</p>
+    </div>
+    <div class="formula-grid">
+      <div class="formula-mini">
+        <h4>Peso (força), em newtons</h4>
+        <p class="fx">P = m × g</p>
+        <p class="fx-note">massa (kg) × gravidade do planeta (m/s²)</p>
+      </div>
+      <div class="formula-mini">
+        <h4>Altura do pulo</h4>
+        <p class="fx">h = h<sub>Terra</sub> × (9,8 ÷ g)</p>
+        <p class="fx-note">mesmo impulso, gravidade menor = pulo mais alto</p>
+      </div>
+      <div class="formula-mini">
+        <h4>Idade no planeta</h4>
+        <p class="fx">idade ÷ duração do ano</p>
+        <p class="fx-note">quantas voltas o planeta já deu desde que você nasceu</p>
+      </div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-form">
+        <div class="field-wrap">
+          <label for="massInput">Sua massa (kg)</label>
+          <input class="field" type="number" id="massInput" value="40" min="1" max="200" step="0.5">
+        </div>
+        <div class="field-wrap">
+          <label for="jumpInput">Altura do seu pulo na Terra (cm)</label>
+          <input class="field" type="number" id="jumpInput" value="30" min="1" max="100" step="1">
+        </div>
+        <div class="field-wrap">
+          <label for="ageInput">Sua idade (anos)</label>
+          <input class="field" type="number" id="ageInput" value="11" min="1" max="120" step="1">
+        </div>
+        <button class="btn" id="calcRun">Calcular em todos os corpos</button>
+      </div>
+      <div class="calc-grid" id="calcResults"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= ESCALA ======================= -->
+<section id="escala">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">05 · Proporção e escala</p>
+      <h2>Se a Terra coubesse na sua mão...</h2>
+      <p>As distâncias reais do Sistema Solar são grandes demais para desenhar em qualquer folha de papel — o Sol está 149,6 milhões de km da Terra, e Netuno está 30 vezes mais longe do Sol que nós. Para representar isso, usamos <em style="color:var(--ink)">escala</em>: escolhemos um tamanho pequeno para a Terra e calculamos, por proporção, o tamanho e a distância de tudo mais.</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-form">
+        <div class="field-wrap">
+          <label for="scaleInput">Diâmetro da Terra no seu modelo (cm)</label>
+          <input class="field" type="number" id="scaleInput" value="1" min="0.1" max="50" step="0.1">
+          <div class="preset-row" id="presetRow">
+            <button class="preset-btn" data-v="0.3">grão de feijão · 0,3 cm</button>
+            <button class="preset-btn" data-v="1">bolinha de gude · 1 cm</button>
+            <button class="preset-btn" data-v="6.5">bola de tênis · 6,5 cm</button>
+            <button class="preset-btn" data-v="24">bola de basquete · 24 cm</button>
+          </div>
+        </div>
+        <button class="btn" id="scaleCalc">Recalcular escala</button>
+      </div>
+      <div class="chart-holder" style="height:auto">
+        <table class="data-table" id="tableScale"></table>
+      </div>
+      <p class="chart-note" style="margin-top:18px">Com a Terra do tamanho escolhido, o Sol e Netuno ficam com os tamanhos e a distância mostrados acima — mantendo exatamente a mesma proporção do Sistema Solar real.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= CURIOSIDADES ======================= -->
+<section id="curiosidades">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">06 · Você sabia?</p>
+      <h2>Curiosidades matemáticas do Sistema Solar</h2>
+    </div>
+    <div class="fact-grid" id="factGrid"></div>
+  </div>
+</section>
+
+<!-- ======================= GLOSSÁRIO ======================= -->
+<section id="glossario">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">07 · Vocabulário</p>
+      <h2>Glossário</h2>
+    </div>
+    <dl class="glossary" id="glossaryList"></dl>
+  </div>
+</section>
+
+<footer id="rodape">
+  <div class="wrap footer-inner">
+    <div class="footer-glow" aria-hidden="true"></div>
+    <div class="footer-grid">
+      <div class="footer-brand" data-animate>
+        <div class="nav-brand"><span class="dot"></span><span>Em órbita do conhecimento</span></div>
+        <p class="school">E.E.B. Professora Francisca Borba — Balneário Piçarras/SC<br>Ensino Fundamental, Anos Finais · Matemática Aplicada e/ou Inter-relação com outras disciplinas</p>
+      </div>
+      <div class="footer-col" data-animate style="--d:.1s">
+        <h3>Explorar</h3>
+        <ul>
+          <li><a href="#sistema">Sistema Solar</a></li>
+          <li><a href="#modelo3d">Modelo 3D</a></li>
+          <li><a href="#comparativos">Comparativos</a></li>
+          <li><a href="#quiz">Quiz</a></li>
+        </ul>
+      </div>
+      <div class="footer-col" data-animate style="--d:.2s">
+        <h3>Ferramentas</h3>
+        <ul>
+          <li><a href="#calculadora">Seu peso</a></li>
+          <li><a href="#escala">Escala</a></li>
+          <li><a href="#curiosidades">Curiosidades</a></li>
+          <li><a href="#glossario">Glossário</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom" data-animate style="--d:.3s">
+      <p>© <span id="year"></span> Em órbita do conhecimento</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   DADOS
+   ============================================================ */
+const EARTH_G = 9.8;
+const EARTH_DIAM_KM = 12742;
+
+const BODIES = [
+  { id:"sol", name:"Sol", symbol:"☀️", color:"#f4a340", role:"estrela", position:"Centro do Sistema Solar",
+    known:"Nossa estrela — a estrela central do Sistema Solar", gravity:274,
+    rotation:"≈25 a 35 dias (varia conforme a latitude solar)", translation:"≈230 milhões de anos ao redor da Via Láctea",
+    tempAvg:5500, tempLabel:"≈5.500 °C na superfície · ≈15.000.000 °C no núcleo",
+    diameterKm:1391000, distanceAU:0,
+    fact:"O Sol sozinho concentra 99,8% de toda a massa do Sistema Solar. Ele é tão grande que caberiam mais de 1,3 milhão de planetas Terra dentro dele." },
+  { id:"mercurio", name:"Mercúrio", symbol:"☿", color:"#b7b2a8", role:"planeta", position:1,
+    known:"O planeta mais próximo do Sol e o menor do Sistema Solar", gravity:3.7,
+    rotation:"≈59 dias terrestres", translation:"≈88 dias terrestres",
+    tempAvg:167, tempMin:-180, tempMax:430, tempLabel:"Média ≈167 °C (−180 °C à noite a 430 °C de dia)",
+    diameterKm:4879, distanceAU:0.387, periodYears:0.241,
+    fact:"Um dia em Mercúrio (de um nascer do sol ao próximo) dura cerca de 176 dias terrestres — quase 2 dos seus 'anos'." },
+  { id:"venus", name:"Vênus", symbol:"♀", color:"#e8c27e", role:"planeta", position:2,
+    known:"Estrela-D'Alva ou Estrela da Manhã — embora seja um planeta", gravity:8.87,
+    rotation:"≈243 dias terrestres (e gira ao contrário dos demais)", translation:"≈225 dias terrestres",
+    tempAvg:465, tempLabel:"≈465 °C — o planeta mais quente do Sistema Solar",
+    diameterKm:12104, distanceAU:0.723, periodYears:0.615,
+    fact:"Em Vênus, um dia (243 dias terrestres) é mais longo que o seu próprio ano (225 dias terrestres)." },
+  { id:"terra", name:"Terra", symbol:"🌎", color:"#4f9fd8", role:"planeta", position:3,
+    known:"Planeta Azul — o planeta da vida", gravity:9.8,
+    rotation:"≈24 horas", translation:"≈365 dias e 6 horas",
+    tempAvg:15, tempLabel:"Média global ≈15 °C, com grande variação regional",
+    diameterKm:12742, distanceAU:1.0, periodYears:1.0,
+    fact:"É o nosso planeta de referência: toda comparação de gravidade, tamanho e temperatura deste site usa a Terra como base 1x." },
+  { id:"marte", name:"Marte", symbol:"♂", color:"#c1552e", role:"planeta", position:4,
+    known:"O Planeta Vermelho", gravity:3.71,
+    rotation:"≈24 horas e 37 minutos", translation:"≈687 dias terrestres",
+    tempAvg:-63, tempLabel:"Média ≈−63 °C, com grande variação",
+    diameterKm:6779, distanceAU:1.524, periodYears:1.881,
+    fact:"Marte tem o maior vulcão do Sistema Solar, o Monte Olimpo — quase 3 vezes mais alto que o Everest." },
+  { id:"jupiter", name:"Júpiter", symbol:"♃", color:"#d8a05c", role:"planeta", position:5,
+    known:"Gigante gasoso — o maior planeta do Sistema Solar", gravity:24.79,
+    rotation:"≈10 horas", translation:"≈11,86 anos terrestres",
+    tempAvg:-110, tempLabel:"≈−110 °C no topo das nuvens",
+    diameterKm:139820, distanceAU:5.203, periodYears:11.86,
+    fact:"Caberiam mais de 1.300 Terras dentro do volume de Júpiter — mas sua gravidade é só 2,5 vezes a nossa." },
+  { id:"saturno", name:"Saturno", symbol:"♄", color:"#e3c16f", role:"planeta", position:6,
+    known:"O planeta dos anéis", gravity:10.44,
+    rotation:"≈10 horas e 30 minutos", translation:"≈29,5 anos terrestres",
+    tempAvg:-140, tempLabel:"≈−140 °C no topo das nuvens",
+    diameterKm:116460, distanceAU:9.537, periodYears:29.46,
+    fact:"Saturno é tão pouco denso que, em teoria, flutuaria em uma banheira de água grande o suficiente." },
+  { id:"urano", name:"Urano", symbol:"♅", color:"#7fd6d6", role:"planeta", position:7,
+    known:"Gigante de gelo — gira praticamente 'deitado'", gravity:8.69,
+    rotation:"≈17 horas", translation:"≈84 anos terrestres",
+    tempAvg:-195, tempLabel:"≈−195 °C na atmosfera superior",
+    diameterKm:50724, distanceAU:19.19, periodYears:84.01,
+    fact:"O eixo de rotação de Urano está inclinado cerca de 98° — ele gira quase deitado, 'rolando' em sua órbita." },
+  { id:"netuno", name:"Netuno", symbol:"♆", color:"#3b5ba5", role:"planeta", position:8,
+    known:"Gigante de gelo — ventos extremamente fortes", gravity:11.15,
+    rotation:"≈16 horas", translation:"≈165 anos terrestres",
+    tempAvg:-200, tempLabel:"≈−200 °C na atmosfera superior",
+    diameterKm:49244, distanceAU:30.07, periodYears:164.8,
+    fact:"Netuno tem os ventos mais rápidos do Sistema Solar, com rajadas de até 2.100 km/h." },
+  { id:"lua", name:"Lua", symbol:"🌙", color:"#b7b4ac", role:"satélite", position:null,
+    known:"Satélite natural da Terra — não é um planeta", gravity:1.62,
+    rotation:"≈27,3 dias", translation:"≈27,3 dias ao redor da Terra",
+    tempAvg:-23, tempMin:-173, tempMax:127, tempLabel:"De −173 °C (noite lunar) a 127 °C (dia lunar)",
+    diameterKm:3474, distanceAU:null, periodYears:0.0748,
+    fact:"A Lua sempre mostra a mesma face para a Terra porque seu período de rotação e de translação são exatamente iguais." },
+];
+
+const MODEL3D = {
+  sol:      { id:"9ef1c68fbb944147bcfcc891d3912645", title:"Sun" },
+  mercurio: { id:"32347fa4ec1a4987b71f461a401d91c4", title:"Mercury" },
+  venus:    { id:"b306aaadbf2b4fcea1afa2db5ed75b4f", title:"Venus" },
+  terra:    { id:"30fd7e9c4e6946ddb6fcae7a97b2b0d4", title:"Earth | Terra" },
+  marte:    { id:"5c751979a8654b4c870a1aef7d5a0ff2", title:"Marte v1.1" },
+  jupiter:  { id:"993ba62a539e4c308e9e3137df454ed6", title:"Realistic Jupiter" },
+  saturno:  { id:"c09a1970148c43ad99db134a9d6d00b5", title:"Saturn" },
+  urano:    { id:"08a86fd8e84a4426b1b4393b63346ce4", title:"Uranus - Ice Giant" },
+  netuno:   { id:"5fac0275d4914790b543c47ff0059615", title:"Neptune - Ice Giant" },
+  lua:      { id:"870de693475d436c8e925ab0bcda4ca4", title:"Moon" },
+};
+
+const PLANETS = BODIES.filter(b => b.role === "planeta");
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const fmt = (n, d=1) => n.toLocaleString("pt-BR", { minimumFractionDigits:0, maximumFractionDigits:d });
+
+function el(tag, cls, html){
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+}
+
+/* ============================================================
+   NAV ACTIVE STATE
+   ============================================================ */
+(function navActive(){
+  const links = document.querySelectorAll(".nav-links a");
+  const map = {};
+  links.forEach(a => map[a.getAttribute("href").slice(1)] = a);
+  const sections = Array.from(links).map(a => document.getElementById(a.getAttribute("href").slice(1))).filter(Boolean);
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        links.forEach(a=>a.classList.remove("active"));
+        const link = map[entry.target.id];
+        if(link) link.classList.add("active");
+      }
+    });
+  }, { rootMargin:"-40% 0px -50% 0px" });
+  sections.forEach(s=>obs.observe(s));
+})();
+
+/* ============================================================
+   HERO — BURACO NEGRO (shader WebGL, raymarching em espaço curvo)
+   Portado de um componente React/TSX para JavaScript puro, mantendo
+   a física e os shaders originais intactos.
+   ============================================================ */
+(function blackHoleHero(){
+  const VERT = `
+attribute vec2 aPos;
+varying vec2 vUv;
+void main() {
+  vUv = aPos * 0.5 + 0.5;
+  gl_Position = vec4(aPos, 0.0, 1.0);
+}
+`;
+
+  const SCENE_FRAG = `
+precision highp float;
+#define MAX_STEPS 460
+#define WIND_CYCLE 46.0
+varying vec2 vUv;
+uniform vec2  uRes;
+uniform float uTime;
+uniform vec3  uCamPos;
+uniform vec3  uRight;
+uniform vec3  uUp;
+uniform vec3  uFwd;
+uniform float uTanHalf;
+uniform vec2  uFocus;
+uniform float uSteps;
+uniform float uSkyR;
+uniform float uDiskIn;
+uniform float uDiskOut;
+uniform float uThick;
+uniform float uDensity;
+uniform float uSpin;
+uniform float uGrain;
+uniform float uBright;
+uniform float uDoppler;
+uniform vec3  uHot;
+uniform vec3  uMid;
+uniform vec3  uCool;
+uniform float uStars;
+uniform float uEncode;
+uniform vec2  uJitter;
+uniform float uSeed;
+float hash13(vec3 p) {
+  p = fract(p * 0.3183099 + vec3(0.1, 0.2, 0.3));
+  p *= 17.0;
+  return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+}
+float vnoise(vec3 x) {
+  vec3 i = floor(x);
+  vec3 f = fract(x);
+  f = f * f * (3.0 - 2.0 * f);
+  float n000 = hash13(i + vec3(0.0, 0.0, 0.0));
+  float n100 = hash13(i + vec3(1.0, 0.0, 0.0));
+  float n010 = hash13(i + vec3(0.0, 1.0, 0.0));
+  float n110 = hash13(i + vec3(1.0, 1.0, 0.0));
+  float n001 = hash13(i + vec3(0.0, 0.0, 1.0));
+  float n101 = hash13(i + vec3(1.0, 0.0, 1.0));
+  float n011 = hash13(i + vec3(0.0, 1.0, 1.0));
+  float n111 = hash13(i + vec3(1.0, 1.0, 1.0));
+  return mix(
+    mix(mix(n000, n100, f.x), mix(n010, n110, f.x), f.y),
+    mix(mix(n001, n101, f.x), mix(n011, n111, f.x), f.y),
+    f.z
+  );
+}
+float fbm(vec3 p, float lod) {
+  float a = 0.5;
+  float s = 0.0;
+  for (int i = 0; i < 4; i++) {
+    s += (i == 3 ? a * lod : a) * vnoise(p);
+    p = p * 2.03 + vec3(11.3, 7.1, 3.7);
+    a *= 0.5;
+  }
+  return s;
+}
+void gasAt(vec3 p, float rd, float dt, out float dens, out vec3 tint, out float heat) {
+  float rn = clamp((rd - uDiskIn) / max(0.001, uDiskOut - uDiskIn), 0.0, 1.0);
+  float tk = uThick * (0.35 + 1.25 * rn);
+  float v = p.y / tk;
+  float sheet = exp(-v * v);
+  float lod = clamp(1.0 - dt * uGrain * 14.0, 0.0, 1.0);
+  float phi = atan(p.z, p.x);
+  float omega = uSpin * pow(uDiskIn / rd, 1.5);
+  float lr = log(rd) * 1.1 + uSpin * uTime * 0.05;
+  float u = uTime / WIND_CYCLE;
+  float fA = fract(u);
+  float fB = fract(u + 0.5);
+  float w = abs(2.0 * fA - 1.0);
+  float cloudsA = fbm(vec3(vec2(cos(phi + omega * fA * WIND_CYCLE),
+                                sin(phi + omega * fA * WIND_CYCLE)) * (rd * uGrain), lr), lod);
+  float cloudsB = fbm(vec3(vec2(cos(phi + omega * fB * WIND_CYCLE),
+                                sin(phi + omega * fB * WIND_CYCLE)) * (rd * uGrain), lr + 40.0), lod);
+  float clouds = mix(cloudsA, cloudsB, w);
+  float filaments = clouds * clouds * 1.75;
+  float inner = smoothstep(0.0, 0.07, rn);
+  float outer = 1.0 - smoothstep(0.45, 1.0, rn);
+  float prof = inner * outer * pow(uDiskIn / rd, 2.0);
+  dens = max(0.0, filaments * 1.5 - 0.30) * sheet * prof * uDensity * 4.6;
+  heat = pow(uDiskIn / rd, 0.8) * (0.72 + 0.55 * clouds);
+  tint = mix(uCool, uMid, smoothstep(0.10, 0.52, heat));
+  tint = mix(tint, uHot, smoothstep(0.52, 1.05, heat));
+}
+vec3 starField(vec3 d) {
+  vec3 a = abs(d);
+  vec2 uv;
+  float face;
+  if (a.x >= a.y && a.x >= a.z)      { uv = d.yz / a.x; face = d.x > 0.0 ? 0.0 : 1.0; }
+  else if (a.y >= a.z)               { uv = d.xz / a.y; face = d.y > 0.0 ? 2.0 : 3.0; }
+  else                               { uv = d.xy / a.z; face = d.z > 0.0 ? 4.0 : 5.0; }
+  vec3 col = vec3(0.0);
+  for (int k = 0; k < 3; k++) {
+    float sc = 90.0 * pow(2.2, float(k));
+    vec2 p = uv * sc;
+    vec2 id = floor(p);
+    vec2 f = fract(p) - 0.5;
+    float h = hash13(vec3(id, face * 19.0));
+    if (h > 0.965) {
+      vec2 off = vec2(hash13(vec3(id, face + 11.0)), hash13(vec3(id, face + 23.0)));
+      float dd = length(f - (off - 0.5) * 0.7);
+      float s = smoothstep(0.055, 0.0, dd);
+      float warm = hash13(vec3(id, face + 51.0));
+      col += s * (0.6 + 4.5 * fract(h * 97.0))
+           * mix(vec3(0.72, 0.82, 1.0), vec3(1.0, 0.88, 0.72), warm)
+           / pow(2.2, float(k));
+    }
+  }
+  col += vec3(0.013, 0.017, 0.030) * fbm(d * 2.6, 1.0);
+  return col;
+}
+void main() {
+  vec2 uv = (gl_FragCoord.xy + uJitter - uFocus * uRes) / uRes.y;
+  vec3 dir = normalize(uFwd + (uv.x * uRight + uv.y * uUp) * 2.0 * uTanHalf);
+  vec3 pos = uCamPos;
+  vec3 vel = dir;
+  vec3 hv = cross(pos, vel);
+  float h2 = dot(hv, hv);
+  float h = sqrt(h2);
+  float swept = 0.0;
+  vec3 col = vec3(0.0);
+  float transmit = 1.0;
+  bool captured = false;
+  float jitter = fract(sin(dot(gl_FragCoord.xy + uSeed, vec2(12.9898, 78.233))) * 43758.5453);
+  for (int i = 0; i < MAX_STEPS; i++) {
+    if (float(i) >= uSteps) break;
+    float r2 = dot(pos, pos);
+    float r = sqrt(r2);
+    if (r < 1.0) { captured = true; break; }
+    if (r > uSkyR && dot(pos, vel) > 0.0) break;
+    if (transmit < 0.004) break;
+    float dt = clamp(0.14 * (r - 1.0), 0.025, 1.1);
+    if (r < uDiskOut * 1.25) {
+      float rn = clamp((r - uDiskIn) / max(0.001, uDiskOut - uDiskIn), 0.0, 1.0);
+      float tk = uThick * (0.35 + 1.25 * rn);
+      dt = min(dt, max(tk * 0.38, abs(pos.y) * 0.5));
+    }
+    swept += h * dt / r2;
+    float deep = exp(-1.3 * max(0.0, swept - 4.6));
+    jitter = fract(jitter + 0.6180339887);
+    vec3 mid = pos + vel * (dt * jitter);
+    float rd = length(mid.xz);
+    if (rd > uDiskIn && rd < uDiskOut && abs(mid.y) < uThick * 5.0) {
+      float dens;
+      float heat;
+      vec3 tint;
+      gasAt(mid, rd, dt, dens, tint, heat);
+      if (dens > 0.001) {
+        vec3 tang = normalize(cross(vec3(0.0, 1.0, 0.0), vec3(mid.x, 0.0, mid.z)));
+        float beta = min(0.85, sqrt(0.5 / max(rd, 1.5)));
+        float gam = inversesqrt(max(1e-4, 1.0 - beta * beta));
+        vec3 toObs = -normalize(vel);
+        float g = 1.0 / (gam * (1.0 - beta * dot(tang, toObs)));
+        g *= sqrt(max(0.05, 1.0 - 1.0 / rd));
+        float boost = pow(max(g, 0.02), 3.0 * uDoppler);
+        vec3 shift = mix(
+          vec3(1.0),
+          g > 1.0 ? vec3(0.86, 0.94, 1.14) : vec3(1.15, 0.82, 0.62),
+          clamp(abs(g - 1.0) * 1.6, 0.0, 1.0) * uDoppler
+        );
+        float emit = uBright * (0.26 + 2.0 * heat * heat);
+        col += tint * shift * (emit * boost * dens * transmit * dt * deep);
+        transmit *= exp(-dens * 0.30 * dt);
+      }
+    }
+    vec3 acc = -1.5 * h2 * pos / (r2 * r2 * r);
+    vel += acc * dt;
+    pos += vel * dt;
+  }
+  if (!captured && uStars > 0.001) {
+    vec3 toHole = normalize(-uCamPos);
+    float sI = length(cross(normalize(dir), toHole));
+    float sS = length(cross(normalize(vel), toHole));
+    float stretch = clamp(sI / max(1e-3, sS), 1.0, 40.0);
+    col += starField(normalize(vel)) * uStars * transmit / stretch;
+  }
+  if (uEncode > 0.5) col = col / (1.0 + col);
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+  const BLEND_FRAG = `
+precision highp float;
+varying vec2 vUv;
+uniform sampler2D uCur;
+uniform sampler2D uPrev;
+uniform float uAlpha;
+void main() {
+  vec3 c = texture2D(uCur, vUv).rgb;
+  vec3 p = texture2D(uPrev, vUv).rgb;
+  gl_FragColor = vec4(mix(p, c, uAlpha), 1.0);
+}
+`;
+
+  const BRIGHT_FRAG = `
+precision highp float;
+varying vec2 vUv;
+uniform sampler2D uTex;
+uniform vec2 uTexel;
+uniform float uDecode;
+uniform float uPack;
+uniform float uThreshold;
+void main() {
+  vec3 s = texture2D(uTex, vUv + uTexel * vec2(-1.0, -1.0)).rgb
+         + texture2D(uTex, vUv + uTexel * vec2( 1.0, -1.0)).rgb
+         + texture2D(uTex, vUv + uTexel * vec2(-1.0,  1.0)).rgb
+         + texture2D(uTex, vUv + uTexel * vec2( 1.0,  1.0)).rgb;
+  s *= 0.25;
+  if (uDecode > 0.5) s = s / max(vec3(0.002), 1.0 - s);
+  float l = max(s.r, max(s.g, s.b));
+  s *= max(0.0, l - uThreshold) / max(0.0001, l);
+  gl_FragColor = vec4(s * uPack, 1.0);
+}
+`;
+
+  const BLUR_FRAG = `
+precision highp float;
+varying vec2 vUv;
+uniform sampler2D uTex;
+uniform vec2 uStep;
+void main() {
+  vec3 s = texture2D(uTex, vUv).rgb * 0.2270270;
+  s += (texture2D(uTex, vUv + uStep * 1.3846154).rgb
+      + texture2D(uTex, vUv - uStep * 1.3846154).rgb) * 0.3162162;
+  s += (texture2D(uTex, vUv + uStep * 3.2307692).rgb
+      + texture2D(uTex, vUv - uStep * 3.2307692).rgb) * 0.0702702;
+  gl_FragColor = vec4(s, 1.0);
+}
+`;
+
+  const COMPOSITE_FRAG = `
+precision highp float;
+varying vec2 vUv;
+uniform sampler2D uScene;
+uniform sampler2D uBloom;
+uniform vec2  uRes;
+uniform float uDecode;
+uniform float uPack;
+uniform float uGlow;
+uniform float uExposure;
+uniform float uVignette;
+uniform float uScrimDir;
+uniform float uScrimAmt;
+uniform float uSeed;
+vec3 aces(vec3 x) {
+  return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0);
+}
+void main() {
+  vec3 scene = texture2D(uScene, vUv).rgb;
+  if (uDecode > 0.5) scene = scene / max(vec3(0.002), 1.0 - scene);
+  vec3 bloom = texture2D(uBloom, vUv).rgb / uPack;
+  vec3 c = scene + bloom * uGlow;
+  c = aces(c * uExposure);
+  c = pow(max(c, 0.0), vec3(0.4545));
+  vec2 d = vUv - 0.5;
+  c *= 1.0 - uVignette * dot(d, d) * 1.9;
+  if (uScrimDir > 0.5) {
+    float x = uScrimDir < 1.5 ? vUv.x
+            : uScrimDir < 2.5 ? 1.0 - vUv.x
+            : uScrimDir < 3.5 ? 1.0 - vUv.y
+            : vUv.y;
+    c *= 1.0 - uScrimAmt * pow(1.0 - clamp(x, 0.0, 1.0), 2.4);
+  }
+  float n = fract(sin(dot(gl_FragCoord.xy + uSeed, vec2(12.9898, 78.233))) * 43758.5453);
+  c += (n - 0.5) / 255.0;
+  gl_FragColor = vec4(c, 1.0);
+}
+`;
+
+  const RAD = Math.PI / 180;
+  function hexToLinear(hex){
+    const h = hex.trim().replace("#", "");
+    const full = h.length === 3 ? h[0]+h[0]+h[1]+h[1]+h[2]+h[2] : h.slice(0,6);
+    const n = parseInt(full, 16);
+    const srgb = [((n>>16)&255)/255, ((n>>8)&255)/255, (n&255)/255];
+    return srgb.map(v => v <= 0.04045 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4));
+  }
+
+  function mount(host, initialProps){
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const canvas = document.createElement("canvas");
+    canvas.setAttribute("aria-hidden", "true");
+    host.appendChild(canvas);
+
+    const props = Object.assign({}, initialProps);
+    const glOpts = { alpha:false, antialias:false, depth:false, stencil:false, powerPreference:"high-performance", preserveDrawingBuffer:false };
+    const gl = canvas.getContext("webgl2", glOpts) || canvas.getContext("webgl", glOpts);
+
+    function giveUp(why){ host.dataset.webgl = why; canvas.style.display = "none"; }
+    if(!gl){ giveUp("unsupported"); return null; }
+
+    const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+    const renderer = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "") : "";
+    const software = /swiftshader|llvmpipe|softpipe|software|microsoft basic/i.test(renderer);
+    const isGL2 = typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext;
+
+    function compile(type, src){
+      const sh = gl.createShader(type);
+      if(!sh) return null;
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      if(!gl.getShaderParameter(sh, gl.COMPILE_STATUS)){
+        console.error("blackhole: shader failed —", gl.getShaderInfoLog(sh) || "no log (context lost?)");
+        gl.deleteShader(sh);
+        return null;
+      }
+      return sh;
+    }
+    function link(fragSrc){
+      const vs = compile(gl.VERTEX_SHADER, VERT);
+      const fs = compile(gl.FRAGMENT_SHADER, fragSrc);
+      if(!vs || !fs) return null;
+      const program = gl.createProgram();
+      if(!program) return null;
+      gl.attachShader(program, vs);
+      gl.attachShader(program, fs);
+      gl.bindAttribLocation(program, 0, "aPos");
+      gl.linkProgram(program);
+      gl.deleteShader(vs);
+      gl.deleteShader(fs);
+      if(!gl.getProgramParameter(program, gl.LINK_STATUS)){
+        console.error(gl.getProgramInfoLog(program));
+        return null;
+      }
+      const u = {};
+      const n = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+      for(let i=0;i<n;i++){
+        const info = gl.getActiveUniform(program, i);
+        if(info) u[info.name] = gl.getUniformLocation(program, info.name);
+      }
+      return { program, u };
+    }
+
+    let hdr = true;
+    let texType = gl.UNSIGNED_BYTE;
+    let internal = gl.RGBA;
+    if(isGL2){
+      const ok = gl.getExtension("EXT_color_buffer_half_float") || gl.getExtension("EXT_color_buffer_float");
+      if(ok){ texType = gl.HALF_FLOAT; internal = gl.RGBA16F; } else hdr = false;
+    } else {
+      const hf = gl.getExtension("OES_texture_half_float");
+      const cb = gl.getExtension("EXT_color_buffer_half_float");
+      if(hf && cb) texType = hf.HALF_FLOAT_OES; else hdr = false;
+    }
+    if(!hdr){ texType = gl.UNSIGNED_BYTE; internal = gl.RGBA; }
+    const linearOK = isGL2 || !!gl.getExtension("OES_texture_half_float_linear") || !hdr;
+    const filter = linearOK ? gl.LINEAR : gl.NEAREST;
+    const pack = hdr ? 1 : 0.12;
+
+    function makeTarget(w,h){
+      const tex = gl.createTexture();
+      const fb = gl.createFramebuffer();
+      if(!tex || !fb) return null;
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, internal, w, h, 0, gl.RGBA, texType, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+      const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      if(status !== gl.FRAMEBUFFER_COMPLETE){ gl.deleteTexture(tex); gl.deleteFramebuffer(fb); return null; }
+      return { fb, tex, w, h };
+    }
+
+    let sceneProg=null, blendProg=null, brightProg=null, blurProg=null, compProg=null, vbo=null;
+    let scene=null, histA=null, histB=null, bloomA=null, bloomB=null;
+    let settled=0, width=0, height=0, sceneW=0, sceneH=0;
+
+    function build(){
+      sceneProg = link(SCENE_FRAG);
+      blendProg = link(BLEND_FRAG);
+      brightProg = link(BRIGHT_FRAG);
+      blurProg = link(BLUR_FRAG);
+      compProg = link(COMPOSITE_FRAG);
+      if(!sceneProg || !blendProg || !brightProg || !blurProg || !compProg) return false;
+      vbo = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+      gl.disable(gl.DEPTH_TEST);
+      gl.disable(gl.BLEND);
+      return true;
+    }
+    function dropTargets(){
+      [scene,histA,histB,bloomA,bloomB].forEach(t=>{ if(t){ gl.deleteTexture(t.tex); gl.deleteFramebuffer(t.fb); } });
+      scene=null; histA=null; histB=null; bloomA=null; bloomB=null; settled=0;
+    }
+    function resize(){
+      const rect = host.getBoundingClientRect();
+      const dpr = software ? 1 : Math.min(window.devicePixelRatio||1, Math.max(1, props.maxDpr));
+      const cssW = Math.max(1, Math.round(rect.width));
+      const cssH = Math.max(1, Math.round(rect.height));
+      const scale = software ? 0.34 : Math.min(1, Math.max(0.4, props.resolution));
+      const w = Math.max(2, Math.round(cssW*dpr));
+      const h = Math.max(2, Math.round(cssH*dpr));
+      const sw = Math.max(2, Math.round(w*scale));
+      const sh = Math.max(2, Math.round(h*scale));
+      if(w===width && h===height && sw===sceneW && sh===sceneH) return;
+      width=w; height=h; sceneW=sw; sceneH=sh;
+      canvas.width=w; canvas.height=h;
+      canvas.style.width=cssW+"px"; canvas.style.height=cssH+"px";
+      dropTargets();
+      scene = makeTarget(sw,sh);
+      histA = makeTarget(sw,sh);
+      histB = makeTarget(sw,sh);
+      const bw = Math.max(2, sw>>2), bh = Math.max(2, sh>>2);
+      bloomA = makeTarget(bw,bh);
+      bloomB = makeTarget(bw,bh);
+    }
+
+    let clock = reduced ? 6 : 0;
+    let lastFrame=0, running=true, visible=true, raf=0;
+    function pass(prog, target){ gl.useProgram(prog.program); gl.bindFramebuffer(gl.FRAMEBUFFER, target?target.fb:null); gl.viewport(0,0, target?target.w:width, target?target.h:height); }
+    function draw(){ gl.drawArrays(gl.TRIANGLES, 0, 3); }
+    function bind(tex, unit){ gl.activeTexture(gl.TEXTURE0+unit); gl.bindTexture(gl.TEXTURE_2D, tex); }
+
+    const HALTON = [[0.5,0.333],[0.25,0.667],[0.75,0.111],[0.125,0.444],[0.625,0.778],[0.375,0.222],[0.875,0.556],[0.0625,0.889]];
+
+    function render(t){
+      if(!sceneProg||!blendProg||!brightProg||!blurProg||!compProg) return;
+      if(!scene||!histA||!histB||!bloomA||!bloomB) return;
+      const C = props;
+      const az = (C.azimuth + C.orbitSpeed*t)*RAD;
+      const el = Math.max(-88, Math.min(88, C.elevation))*RAD;
+      const dist = Math.max(2.2, C.distance);
+      const ce = Math.cos(el);
+      const camX = dist*ce*Math.cos(az);
+      const camY = dist*Math.sin(el);
+      const camZ = dist*ce*Math.sin(az);
+      const fx=-camX/dist, fy=-camY/dist, fz=-camZ/dist;
+      let rx=fz, ry=0, rz=-fx;
+      const rl = Math.hypot(rx,ry,rz) || 1;
+      rx/=rl; ry/=rl; rz/=rl;
+      let ux = ry*fz - rz*fy;
+      let uy = rz*fx - rx*fz;
+      let uz = rx*fy - ry*fx;
+      const cr = Math.cos(C.roll*RAD), sr = Math.sin(C.roll*RAD);
+      const RX = rx*cr+ux*sr, RY = ry*cr+uy*sr, RZ = rz*cr+uz*sr;
+      const UX = -rx*sr+ux*cr, UY = -ry*sr+uy*cr, UZ = -rz*sr+uz*cr;
+      const hot = hexToLinear(C.hotColor), midc = hexToLinear(C.midColor), cool = hexToLinear(C.coolColor);
+      const outer = Math.max(C.diskInner+0.5, C.diskOuter);
+
+      pass(sceneProg, scene);
+      const u = sceneProg.u;
+      gl.uniform2f(u.uRes, scene.w, scene.h);
+      gl.uniform1f(u.uTime, t);
+      gl.uniform3f(u.uCamPos, camX, camY, camZ);
+      gl.uniform3f(u.uRight, RX, RY, RZ);
+      gl.uniform3f(u.uUp, UX, UY, UZ);
+      gl.uniform3f(u.uFwd, fx, fy, fz);
+      gl.uniform1f(u.uTanHalf, Math.tan(Math.max(8, Math.min(110, C.fov))*0.5*RAD));
+      gl.uniform2f(u.uFocus, C.focus[0], 1 - C.focus[1]);
+      gl.uniform1f(u.uSteps, software ? 130 : Math.max(60, Math.min(460, Math.round(C.steps))));
+      gl.uniform1f(u.uSkyR, Math.max(dist*1.35, outer*2.4));
+      gl.uniform1f(u.uDiskIn, Math.max(1.05, C.diskInner));
+      gl.uniform1f(u.uDiskOut, outer);
+      gl.uniform1f(u.uThick, Math.max(0.02, C.diskThickness));
+      gl.uniform1f(u.uDensity, Math.max(0, C.diskDensity));
+      gl.uniform1f(u.uSpin, C.spinSpeed*6.2831853);
+      gl.uniform1f(u.uGrain, Math.max(0.02, C.grain));
+      gl.uniform1f(u.uBright, Math.max(0, C.brightness));
+      gl.uniform1f(u.uDoppler, Math.max(0, Math.min(1, C.doppler)));
+      gl.uniform3f(u.uHot, hot[0],hot[1],hot[2]);
+      gl.uniform3f(u.uMid, midc[0],midc[1],midc[2]);
+      gl.uniform3f(u.uCool, cool[0],cool[1],cool[2]);
+      gl.uniform1f(u.uStars, Math.max(0, C.starBrightness));
+      gl.uniform1f(u.uEncode, hdr?0:1);
+      const h = HALTON[settled % HALTON.length];
+      gl.uniform2f(u.uJitter, h[0]-0.5, h[1]-0.5);
+      gl.uniform1f(u.uSeed, (settled%64)*17.13);
+      draw();
+
+      const alpha = settled===0 ? 1 : 0.14;
+      pass(blendProg, histB);
+      bind(scene.tex,0); bind(histA.tex,1);
+      gl.uniform1i(blendProg.u.uCur, 0);
+      gl.uniform1i(blendProg.u.uPrev, 1);
+      gl.uniform1f(blendProg.u.uAlpha, alpha);
+      draw();
+      const shown = histB;
+      const tmp = histA; histA = histB; histB = tmp;
+      settled++;
+
+      pass(brightProg, bloomA);
+      bind(shown.tex, 0);
+      gl.uniform1i(brightProg.u.uTex, 0);
+      gl.uniform2f(brightProg.u.uTexel, 1/shown.w, 1/shown.h);
+      gl.uniform1f(brightProg.u.uDecode, hdr?0:1);
+      gl.uniform1f(brightProg.u.uPack, pack);
+      gl.uniform1f(brightProg.u.uThreshold, 0.85);
+      draw();
+
+      const blurStep = (src,dst,dx,dy)=>{
+        pass(blurProg, dst);
+        bind(src.tex, 0);
+        gl.uniform1i(blurProg.u.uTex, 0);
+        gl.uniform2f(blurProg.u.uStep, dx/dst.w, dy/dst.h);
+        draw();
+      };
+      blurStep(bloomA,bloomB,1,0);
+      blurStep(bloomB,bloomA,0,1);
+      blurStep(bloomA,bloomB,2.6,0);
+      blurStep(bloomB,bloomA,0,2.6);
+
+      pass(compProg, null);
+      bind(shown.tex, 0); bind(bloomA.tex, 1);
+      gl.uniform1i(compProg.u.uScene, 0);
+      gl.uniform1i(compProg.u.uBloom, 1);
+      gl.uniform2f(compProg.u.uRes, width, height);
+      gl.uniform1f(compProg.u.uDecode, hdr?0:1);
+      gl.uniform1f(compProg.u.uPack, pack);
+      gl.uniform1f(compProg.u.uGlow, Math.max(0,C.glow)*0.26);
+      gl.uniform1f(compProg.u.uExposure, Math.max(0.05,C.exposure));
+      gl.uniform1f(compProg.u.uVignette, Math.max(0, Math.min(1,C.vignette)));
+      gl.uniform1f(compProg.u.uScrimDir, C.scrim==="left"?1:C.scrim==="right"?2:C.scrim==="top"?3:C.scrim==="bottom"?4:0);
+      gl.uniform1f(compProg.u.uScrimAmt, Math.max(0, Math.min(1, C.scrimStrength)));
+      gl.uniform1f(compProg.u.uSeed, (t*60)%1000);
+      draw();
+    }
+
+    function settle(passes){ for(let i=0;i<passes;i++) render(clock); }
+
+    function tick(now){
+      if(!running) return;
+      raf = requestAnimationFrame(tick);
+      if(!visible){ lastFrame = now; return; }
+      const dt = lastFrame ? Math.min(0.05, (now-lastFrame)/1000) : 0;
+      lastFrame = now;
+      if(!props.paused && !reduced) clock += dt;
+      render(clock);
+    }
+
+    if(!build()){ giveUp("build-failed"); return null; }
+    resize();
+    settle(reduced ? 16 : 1);
+    if(!reduced) raf = requestAnimationFrame(tick);
+
+    const ro = new ResizeObserver(()=>{ resize(); if(reduced || props.paused) settle(16); });
+    ro.observe(host);
+    const io = new IntersectionObserver((entries)=>{ visible = entries[0] ? entries[0].isIntersecting : true; }, { threshold:0 });
+    io.observe(host);
+    const onVisibility = ()=>{ visible = !document.hidden; lastFrame = 0; };
+    const onLost = (e)=>{ e.preventDefault(); running=false; cancelAnimationFrame(raf); canvas.style.display="none"; };
+    const onRestored = ()=>{
+      width=0; height=0; sceneW=0; sceneH=0;
+      if(!build()){ giveUp("lost"); return; }
+      canvas.style.display=""; host.dataset.webgl="";
+      resize(); running=true; lastFrame=0;
+      settle(reduced?16:1);
+      if(!reduced) raf = requestAnimationFrame(tick);
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    canvas.addEventListener("webglcontextlost", onLost);
+    canvas.addEventListener("webglcontextrestored", onRestored);
+
+    return {
+      updateProps(next){
+        Object.assign(props, next);
+        resize();
+        if(reduced || props.paused) settle(16);
+      }
+    };
+  }
+
+  function init(){
+    const host = document.getElementById("blackholeHost");
+    if(!host) return;
+    const mq = window.matchMedia("(max-width: 767px)");
+    function propsFor(narrow){
+      return {
+        distance:24, elevation: narrow ? -7 : -5.5, azimuth:0, orbitSpeed:0, roll:-20,
+        fov: narrow ? 58 : 42,
+        diskInner:3, diskOuter:15, diskThickness:0.26, diskDensity:1, brightness:1,
+        spinSpeed:0.06, grain:0.48, doppler:0.35,
+        hotColor:"#FFF3DE", midColor:"#FF9838", coolColor:"#8E3A0B",
+        starBrightness:0.45,
+        glow: narrow ? 0.85 : 1, exposure:0.9, vignette:0.28,
+        steps: narrow ? 200 : 300, resolution: narrow ? 0.6 : 0.7, maxDpr:1.75,
+        focus: narrow ? [0.5,0.76] : [0.72,0.46],
+        scrim: narrow ? "top" : "left", scrimStrength:0.9,
+        paused:false
+      };
+    }
+    let narrow = mq.matches;
+    const instance = mount(host, propsFor(narrow));
+    const onChange = ()=>{
+      const isNarrow = mq.matches;
+      if(isNarrow !== narrow){ narrow = isNarrow; if(instance) instance.updateProps(propsFor(narrow)); }
+    };
+    if(mq.addEventListener) mq.addEventListener("change", onChange);
+    else if(mq.addListener) mq.addListener(onChange);
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+
+/* ============================================================
+   PLANET CARDS
+   ============================================================ */
+(function renderBodies(){
+  const grid = document.getElementById("bodyGrid");
+  BODIES.forEach(b=>{
+    const card = el("article","body-card");
+    card.style.setProperty("--c", b.color);
+    const posLabel = b.role==="estrela" ? "Estrela central" : b.role==="satélite" ? "Satélite da Terra" : `${b.position}º planeta`;
+    const model = MODEL3D[b.id];
+    const embedHtml = model ? `
+      <div class="card-embed-frame">
+        <iframe title="${model.title}" loading="lazy"
+          allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen
+          xr-spatial-tracking="true" execution-while-out-of-viewport execution-while-not-rendered web-share
+          src="https://sketchfab.com/models/${model.id}/embed?autostart=1&ui_infos=0&ui_controls=1&ui_watermark=0">
+        </iframe>
+      </div>` : "";
+    card.innerHTML = `
+      ${embedHtml}
+      <div class="body-card-head">
+        <div class="body-name">
+          <span class="body-swatch"></span>
+          <h3>${b.name}</h3>
+        </div>
+        <span class="body-position">${posLabel}</span>
+      </div>
+      <p class="body-known">${b.known}</p>
+      <div class="body-stats">
+        <div class="stat"><div class="k">Gravidade</div><div class="v">${fmt(b.gravity,2)} m/s²</div></div>
+        <div class="stat"><div class="k">Rotação</div><div class="v">${b.rotation}</div></div>
+        <div class="stat"><div class="k">Translação</div><div class="v">${b.translation}</div></div>
+        <div class="stat"><div class="k">Temperatura</div><div class="v">${b.tempLabel}</div></div>
+      </div>
+      <details><summary>Curiosidade</summary><p class="fact">${b.fact}</p></details>
+    `;
+    grid.appendChild(card);
+  });
+})();
+
+/* ============================================================
+   CHART.JS DEFAULTS
+   ============================================================ */
+if(window.Chart){
+  Chart.defaults.color = "#b7b3d1";
+  Chart.defaults.font.family = "'Space Grotesk','Segoe UI',sans-serif";
+  Chart.defaults.font.size = 12;
+}
+const GRID_COLOR = "rgba(244,241,234,.07)";
+
+function baseBarOptions(yLabel){
+  return {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:"#1b1a3a", borderColor:"rgba(244,241,234,.12)", borderWidth:1, padding:10, titleColor:"#f4f1ea", bodyColor:"#b7b3d1" } },
+    scales:{
+      x:{ grid:{ display:false }, ticks:{ color:"#b7b3d1" } },
+      y:{ grid:{ color:GRID_COLOR }, ticks:{ color:"#8481a3" }, title:{ display:!!yLabel, text:yLabel, color:"#8481a3" } }
+    }
+  };
+}
+
+/* ---- Gravity chart (planets + moon; Sun called out separately) ---- */
+(function gravityChart(){
+  const rows = BODIES.filter(b=>b.role!=="estrela");
+  const ctx = document.getElementById("chartGravity");
+  if(window.Chart){
+    new Chart(ctx, {
+      type:"bar",
+      data:{
+        labels: rows.map(b=>b.name),
+        datasets:[{
+          data: rows.map(b=>b.gravity),
+          backgroundColor: rows.map(b=>b.color),
+          borderRadius:6, borderSkipped:false,
+          maxBarThickness:46
+        }]
+      },
+      options: baseBarOptions("m/s²")
+    });
+  }
+  const table = document.getElementById("tableGravity");
+  table.innerHTML = `<thead><tr><th>Corpo</th><th>Gravidade (m/s²)</th><th>× gravidade da Terra</th></tr></thead>
+  <tbody>${rows.map(b=>`<tr><td class="name">${b.name}</td><td>${fmt(b.gravity,2)}</td><td>${fmt(b.gravity/EARTH_G,2)}x</td></tr>`).join("")}
+  <tr><td class="name">Sol</td><td>274,00</td><td>27,96x</td></tr></tbody>`;
+})();
+
+/* ---- Temperature chart (8 planets) ---- */
+(function tempChart(){
+  const rows = PLANETS;
+  const ctx = document.getElementById("chartTemp");
+  if(window.Chart){
+    new Chart(ctx, {
+      type:"bar",
+      data:{
+        labels: rows.map(b=>b.name),
+        datasets:[{
+          data: rows.map(b=>b.tempAvg),
+          backgroundColor: rows.map(b=>b.color),
+          borderRadius:6, borderSkipped:false,
+          maxBarThickness:46
+        }]
+      },
+      options: baseBarOptions("°C (média)")
+    });
+  }
+  const table = document.getElementById("tableTemp");
+  table.innerHTML = `<thead><tr><th>Planeta</th><th>Temperatura média</th></tr></thead>
+  <tbody>${rows.map(b=>`<tr><td class="name">${b.name}</td><td>${b.tempLabel}</td></tr>`).join("")}</tbody>`;
+})();
+
+/* ---- Size comparison (CSS circles) ---- */
+(function sizeCompare(){
+  const rows = [...PLANETS];
+  const maxD = Math.max(...rows.map(b=>b.diameterKm));
+  const maxPx = 150;
+  const host = document.getElementById("sizeCompare");
+  rows.forEach(b=>{
+    const px = Math.max(6, (b.diameterKm/maxD)*maxPx);
+    const item = el("div","size-item");
+    item.innerHTML = `<div class="size-circle" style="--c:${b.color}; width:${px}px; height:${px}px"></div>
+      <div class="lbl">${b.name}<b>${fmt(b.diameterKm,0)} km</b></div>`;
+    host.appendChild(item);
+  });
+  const table = document.getElementById("tableSize");
+  table.innerHTML = `<thead><tr><th>Corpo</th><th>Diâmetro</th><th>× diâmetro da Terra</th></tr></thead>
+  <tbody>${BODIES.map(b=>`<tr><td class="name">${b.name}</td><td>${fmt(b.diameterKm,0)} km</td><td>${fmt(b.diameterKm/EARTH_DIAM_KM,2)}x</td></tr>`).join("")}</tbody>`;
+})();
+
+/* ============================================================
+   QUIZ
+   ============================================================ */
+(function quiz(){
+  const QUESTIONS = [
+    { q:"Qual é o maior planeta do Sistema Solar?",
+      options:["Terra","Marte","Júpiter","Saturno"], correct:2,
+      explain:"Júpiter é o maior planeta — caberiam mais de 1.300 Terras dentro dele!" },
+    { q:"Qual planeta é conhecido como o \"Planeta Vermelho\"?",
+      options:["Vênus","Marte","Netuno","Mercúrio"], correct:1,
+      explain:"Marte tem esse apelido por causa do óxido de ferro (ferrugem) na sua superfície." },
+    { q:"Qual é o planeta mais quente do Sistema Solar — mesmo sem ser o mais próximo do Sol?",
+      options:["Mercúrio","Vênus","Terra","Marte"], correct:1,
+      explain:"Vênus tem uma atmosfera espessa que retém o calor (efeito estufa) e chega a 465 °C." },
+    { q:"Aproximadamente quantas horas dura um dia (uma rotação) na Terra?",
+      options:["10 horas","16 horas","24 horas","48 horas"], correct:2,
+      explain:"Um dia na Terra dura cerca de 24 horas — o tempo que ela leva para girar uma vez em torno do próprio eixo." },
+    { q:"Qual é o satélite natural da Terra?",
+      options:["Fobos","Titã","Lua","Europa"], correct:2,
+      explain:"A Lua é o único satélite natural da Terra." },
+    { q:"Qual planeta tem os anéis mais famosos e visíveis do Sistema Solar?",
+      options:["Urano","Júpiter","Saturno","Netuno"], correct:2,
+      explain:"Os anéis de Saturno são feitos principalmente de gelo e rocha." },
+    { q:"Se você pesa 60 kg na Terra, quanto pesaria em Júpiter (gravidade cerca de 2,5x maior)?",
+      options:["24 kg","60 kg","150 kg","300 kg"], correct:2,
+      explain:"60 × 2,5 = 150 kg — a mesma regra de três da calculadora lá em cima!" },
+    { q:"Qual é o planeta mais distante do Sol?",
+      options:["Urano","Saturno","Netuno","Marte"], correct:2,
+      explain:"Netuno é o 8º e último planeta, a cerca de 30 vezes a distância Terra-Sol." },
+  ];
+
+  const card = document.getElementById("quizCard");
+  const result = document.getElementById("quizResult");
+  if(!card) return;
+
+  const counterEl = document.getElementById("quizCounter");
+  const progressEl = document.getElementById("quizProgressBar");
+  const questionEl = document.getElementById("quizQuestion");
+  const optionsEl = document.getElementById("quizOptions");
+  const feedbackEl = document.getElementById("quizFeedback");
+  const nextBtn = document.getElementById("quizNext");
+  const retryBtn = document.getElementById("quizRetry");
+
+  let idx = 0, score = 0, answered = false;
+
+  function renderQuestion(){
+    answered = false;
+    feedbackEl.textContent = "";
+    feedbackEl.className = "quiz-feedback";
+    nextBtn.disabled = true;
+    nextBtn.textContent = idx === QUESTIONS.length - 1 ? "Ver resultado" : "Próxima pergunta";
+    const q = QUESTIONS[idx];
+    counterEl.textContent = `Pergunta ${idx+1} de ${QUESTIONS.length}`;
+    progressEl.style.width = `${(idx/QUESTIONS.length)*100}%`;
+    questionEl.textContent = q.q;
+    optionsEl.innerHTML = "";
+    q.options.forEach((opt,i)=>{
+      const btn = el("button","quiz-option");
+      btn.type = "button";
+      btn.textContent = opt;
+      btn.addEventListener("click", ()=> selectOption(i));
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  function selectOption(i){
+    if(answered) return;
+    answered = true;
+    const q = QUESTIONS[idx];
+    const correct = i === q.correct;
+    if(correct) score++;
+    Array.from(optionsEl.children).forEach((b,bi)=>{
+      b.disabled = true;
+      if(bi === q.correct) b.classList.add("is-correct");
+      else if(bi === i) b.classList.add("is-wrong");
+    });
+    feedbackEl.textContent = (correct ? "✓ Certinho! " : "✗ Quase! ") + q.explain;
+    feedbackEl.className = "quiz-feedback " + (correct ? "is-correct" : "is-wrong");
+    nextBtn.disabled = false;
+  }
+
+  function finish(){
+    progressEl.style.width = "100%";
+    card.hidden = true;
+    result.hidden = false;
+    const pct = score / QUESTIONS.length;
+    document.getElementById("quizResultScore").textContent = `${score} / ${QUESTIONS.length}`;
+    let title, text;
+    if(pct >= 0.875){ title = "Mandou muito bem!"; text = "Você conhece o Sistema Solar de verdade — parabéns!"; }
+    else if(pct >= 0.625){ title = "Muito bom!"; text = "Você já sabe bastante sobre o Sistema Solar. Dá uma olhada nas perguntas que errou."; }
+    else if(pct >= 0.375){ title = "Bom começo!"; text = "Vale revisar os cards dos planetas lá em cima e tentar de novo."; }
+    else { title = "Bora revisar!"; text = "Dá uma olhada nos dados e nos cards lá em cima — e tenta de novo, você consegue!"; }
+    document.getElementById("quizResultTitle").textContent = title;
+    document.getElementById("quizResultText").textContent = text;
+  }
+
+  nextBtn.addEventListener("click", ()=>{
+    if(!answered) return;
+    if(idx < QUESTIONS.length - 1){ idx++; renderQuestion(); }
+    else finish();
+  });
+
+  retryBtn.addEventListener("click", ()=>{
+    idx = 0; score = 0;
+    result.hidden = true;
+    card.hidden = false;
+    renderQuestion();
+  });
+
+  renderQuestion();
+})();
+
+/* ============================================================
+   CALCULADORA: PESO (N), PULO E IDADE EM CADA CORPO
+   ============================================================ */
+function renderCalc(){
+  const mass = parseFloat(document.getElementById("massInput").value) || 0;
+  const jumpEarth = parseFloat(document.getElementById("jumpInput").value) || 0;
+  const age = parseFloat(document.getElementById("ageInput").value) || 0;
+  const host = document.getElementById("calcResults");
+  host.innerHTML = "";
+  BODIES.forEach(b=>{
+    const weightN = mass * b.gravity;
+    const ratio = b.gravity / EARTH_G;
+    const jumpCm = jumpEarth * (EARTH_G / b.gravity);
+    const ageOnBody = b.periodYears ? age / b.periodYears : null;
+
+    const card = el("div","calc-card" + (b.id==="terra" ? " baseline":""));
+    card.style.setProperty("--c", b.color);
+    const weightNote = b.id==="terra" ? "referência" : ratio>1 ? `${fmt(ratio,2)}x mais pesado` : `${fmt(1/ratio,2)}x mais leve`;
+    card.innerHTML = `
+      <div class="rname"><span class="dot"></span>${b.name}</div>
+      <div class="calc-stats">
+        <div class="cstat"><div class="ck">Peso</div><div class="cv">${fmt(weightN,0)} N</div><div class="cd">${weightNote}</div></div>
+        <div class="cstat"><div class="ck">Pulo</div><div class="cv">${formatLength(jumpCm)}</div></div>
+        <div class="cstat"><div class="ck">Idade</div><div class="cv">${ageOnBody!=null ? fmt(ageOnBody,ageOnBody<10?2:1)+" anos" : "—"}</div></div>
+      </div>`;
+    host.appendChild(card);
+  });
+}
+document.getElementById("calcRun").addEventListener("click", renderCalc);
+["massInput","jumpInput","ageInput"].forEach(id=>{
+  document.getElementById(id).addEventListener("keydown", e=>{ if(e.key==="Enter") renderCalc(); });
+});
+renderCalc();
+
+/* ============================================================
+   SIMULADOR DE ESCALA
+   ============================================================ */
+function formatLength(cm){
+  if(cm < 0.1) return `${fmt(cm*10,2)} mm`;
+  if(cm < 100) return `${fmt(cm,2)} cm`;
+  if(cm < 100000) return `${fmt(cm/100,1)} m`;
+  return `${fmt(cm/100000,2)} km`;
+}
+function renderScale(){
+  const chosenCm = parseFloat(document.getElementById("scaleInput").value) || 1;
+  const earthDiamCm = EARTH_DIAM_KM * 100000; // km -> cm
+  const scale = chosenCm / earthDiamCm;
+  const AU_KM = 149.6e6;
+  const table = document.getElementById("tableScale");
+  const rows = BODIES.map(b=>{
+    const diamScaled = b.diameterKm * 100000 * scale;
+    const distScaled = b.distanceAU!=null ? b.distanceAU * AU_KM * 100000 * scale : null;
+    return { ...b, diamScaled, distScaled };
+  });
+  table.innerHTML = `<thead><tr><th>Corpo</th><th>Diâmetro na escala</th><th>Distância do Sol na escala</th></tr></thead>
+  <tbody>${rows.map(r=>`<tr><td class="name">${r.name}</td><td>${formatLength(r.diamScaled)}</td><td>${r.distScaled!=null ? formatLength(r.distScaled) : "—"}</td></tr>`).join("")}</tbody>`;
+}
+document.getElementById("scaleCalc").addEventListener("click", renderScale);
+document.getElementById("scaleInput").addEventListener("keydown", e=>{ if(e.key==="Enter") renderScale(); });
+document.querySelectorAll(".preset-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.getElementById("scaleInput").value = btn.dataset.v;
+    document.querySelectorAll(".preset-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    renderScale();
+  });
+});
+renderScale();
+
+/* ============================================================
+   CURIOSIDADES
+   ============================================================ */
+const FACTS = [
+  { icon:"⚖️", html:"Mesmo Júpiter tendo o dobro da gravidade da Terra, sua superfície gasosa faz com que ninguém 'pese' nela de verdade — não há chão sólido." },
+  { icon:"🌡️", html:"Vênus (108 milhões de km do Sol) é mais quente que Mercúrio (58 milhões de km) por causa do efeito estufa de sua atmosfera densa de CO₂." },
+  { icon:"🔄", html:"Um dia em Vênus (243 dias terrestres) é mais longo que o seu ano (225 dias) — o único planeta em que isso acontece." },
+  { icon:"📏", html:"Se o Sol fosse do tamanho de uma bola de basquete (24 cm), a Terra seria um grão de areia de 2 mm a cerca de 26 metros de distância." },
+  { icon:"🪐", html:"Saturno tem densidade menor que a da água (0,69 g/cm³) — por proporção, ele flutuaria em uma banheira gigante." },
+  { icon:"🌙", html:"A Lua se afasta da Terra cerca de 3,8 cm por ano — aproximadamente a velocidade com que crescem suas unhas." },
+  { icon:"💨", html:"Netuno está tão longe (30 UA) que a luz do Sol demora cerca de 4 horas para chegar até lá — na Terra, demora só 8 minutos." },
+  { icon:"🧮", html:"Se a Terra tivesse o tamanho de uma bolinha de gude (1 cm), o Sol seria uma bola de mais de 1 metro de diâmetro — e ficaria a mais de 100 metros de distância." },
+];
+(function renderFacts(){
+  const host = document.getElementById("factGrid");
+  FACTS.forEach(f=>{
+    const card = el("div","fact-card", `<span class="icon">${f.icon}</span><p>${f.html}</p>`);
+    host.appendChild(card);
+  });
+})();
+
+/* ============================================================
+   GLOSSÁRIO
+   ============================================================ */
+const GLOSSARY = [
+  ["Gravidade", "Força de atração que um corpo exerce sobre outro. Quanto maior a massa do planeta, maior sua gravidade."],
+  ["Rotação", "Movimento de um corpo girando sobre seu próprio eixo. Na Terra, define a duração de um dia."],
+  ["Translação", "Movimento de um corpo ao redor de outro — por exemplo, um planeta orbitando o Sol. Define a duração de um ano."],
+  ["Órbita", "O caminho, geralmente elíptico, que um corpo percorre ao redor de outro por efeito da gravidade."],
+  ["Unidade Astronômica (UA)", "Distância média entre a Terra e o Sol (149,6 milhões de km), usada para medir distâncias no Sistema Solar."],
+  ["Escala", "Razão constante usada para representar um objeto grande em um tamanho menor, mantendo suas proporções."],
+  ["Regra de três", "Método matemático para resolver problemas de proporção direta ou inversa entre grandezas."],
+  ["Amplitude térmica", "A diferença entre a temperatura mais alta e a mais baixa registradas em um lugar — como o dia e a noite na Lua."],
+];
+(function renderGlossary(){
+  const host = document.getElementById("glossaryList");
+  GLOSSARY.forEach(([term,def])=>{
+    host.appendChild(el("dt",null,term));
+    host.appendChild(el("dd",null,def));
+  });
+})();
+
+/* ============================================================
+   RODAPÉ — ano + fade-in ao rolar
+   ============================================================ */
+(function footer(){
+  const yearEl = document.getElementById("year");
+  if(yearEl) yearEl.textContent = new Date().getFullYear();
+
+  const animated = document.querySelectorAll("[data-animate]");
+  if(!animated.length) return;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduced){ animated.forEach(elm=>elm.classList.add("in-view")); return; }
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){ entry.target.classList.add("in-view"); obs.unobserve(entry.target); }
+    });
+  }, { threshold:0.2 });
+  animated.forEach(elm=>obs.observe(elm));
+})();
+</script>
+</body>
+</html>
